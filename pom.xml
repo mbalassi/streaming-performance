@@ -20,7 +20,7 @@
 		<repository>
 			<id>snapshots-repo</id>
 			<url>https://dms.sztaki.hu/maven-public</url>
-			<releases><enabled>false</enabled></releases>
+			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>true</enabled></snapshots>
 		</repository>
 	</repositories>
@@ -28,7 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>eu.stratosphere</groupId>
-			<artifactId>stratopshere-streaming-core</artifactId>
+			<artifactId>stratosphere-streaming-core</artifactId>
 			<version>0.2</version>
 		</dependency>
 	</dependencies>

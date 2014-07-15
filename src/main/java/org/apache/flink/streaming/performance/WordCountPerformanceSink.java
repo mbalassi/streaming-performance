@@ -30,12 +30,12 @@ public class WordCountPerformanceSink extends SinkFunction<Tuple2<String, Intege
 	
 	private PerformanceCounter pCounter;
 	private String argString;
-	private String stratoDirectory;
+	private String csvPath;
 	
-	public WordCountPerformanceSink(String[] args, String stratoDir){
-		stratoDirectory = stratoDir;
-		argString = args[0];
-		for(int i = 1; i < args.length - 1; i++){
+	public WordCountPerformanceSink(String[] args, String csvPath_){
+		csvPath = csvPath_;
+		argString = args[4];
+		for(int i = 5; i < args.length; i++){
 			argString += "_" + args[i];
 		}
 	}
@@ -53,8 +53,7 @@ public class WordCountPerformanceSink extends SinkFunction<Tuple2<String, Intege
 		String fileName;
 		File csvFile;
 		do {
-			fileName = "/home/strato/" + stratoDirectory + "/log/counter/sink-" + argString + 
-			//fileName = "/home/tofi/git/streaming-performance/src/test/resources/testdata/sink-" + argString + 
+			fileName = csvPath + "sink-" + argString + 
 					"-" + String.valueOf(rnd.nextInt(10000000)) + ".csv";
 			csvFile = new File(fileName);
 		} while(csvFile.exists());

@@ -15,6 +15,9 @@
 
 package org.apache.flink.streaming.performance;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.DataStream;
 import org.apache.flink.streaming.api.StreamExecutionEnvironment;
@@ -23,37 +26,54 @@ public class WordCountPerformanceLocal {
 
 	public static void main(String[] args) {
 
-		if (args.length < 7) {
-			System.out.println("Arguments");
-			return;
+		if (args != null && args.length == 9) {
+			try {
+				boolean runOnCluster = args[0].equals("cluster");
+				String sourcePath = args[1];
+				String csvPath = args[2];
+				String jarPath = args[3];
+				
+				if (!(new File(sourcePath)).exists()) {
+					throw new FileNotFoundException();
+				}
+		
+				int clusterSize = Integer.valueOf(args[4]);
+				int sourceSize = Integer.valueOf(args[5]);
+				int splitterSize = Integer.valueOf(args[6]);
+				int counterSize = Integer.valueOf(args[7]);
+				int sinkSize = Integer.valueOf(args[8]);
+		
+				StreamExecutionEnvironment env;
+				if (runOnCluster) {
+					env = StreamExecutionEnvironment.createRemoteEnvironment(
+							"10.1.3.150", 6123, clusterSize, 
+							jarPath);
+				} else {
+					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
+				}
+				
+				@SuppressWarnings("unused")
+				DataStream<Tuple2<String, Integer>> dataStream = env
+						.readTextStream(sourcePath, sourceSize)
+						.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
+						.partitionBy(0)
+						.map(new WordCountPerformanceCounter()).setParallelism(counterSize)
+						.addSink(new WordCountPerformanceSink(args, csvPath)).setParallelism(sinkSize);
+				
+				env.setExecutionParallelism(clusterSize);
+				env.execute();
+			} catch (NumberFormatException e) {
+				printUsage();
+			} catch (FileNotFoundException e) {
+				printUsage();
+			}
+		} else {
+			printUsage();
 		}
-		
-		int defaultBatchSize = Integer.valueOf(args[0]);
-		int clusterSize = Integer.valueOf(args[1]);
-		int sourceSize = Integer.valueOf(args[2]);
-		int splitterSize = Integer.valueOf(args[3]);
-		int counterSize = Integer.valueOf(args[4]);
-		int sinkSize = Integer.valueOf(args[5]);
-		String stratoDir = args[6];
+	}
 
-		StreamExecutionEnvironment env = StreamExecutionEnvironment.createRemoteEnvironment(
-				"10.1.3.150", 6123, clusterSize, 
-				"/home/strato/" + stratoDir + "/lib/streaming-performance-0.1-SNAPSHOT.jar");
-				//"/home/tofi/git/streaming-performance/target/streaming-performance-0.1-SNAPSHOT.jar");
-		
-		//StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
-		//env.setDefaultBatchSize(defaultBatchSize);
-		
-		@SuppressWarnings("unused")
-		DataStream<Tuple2<String, Integer>> dataStream = env
-				.readTextStream("/home/strato/" + stratoDir + "/resources/hamlet.txt", sourceSize)
-				//.readTextStream("/home/tofi/git/streaming-performance/src/test/resources/testdata/hamlet.txt", sourceSize)
-				.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
-				.partitionBy(0)
-				.map(new WordCountPerformanceCounter()).setParallelism(counterSize)
-				.addSink(new WordCountPerformanceSink(args, stratoDir)).setParallelism(sinkSize);
-		
-		env.setExecutionParallelism(clusterSize);
-		env.execute();
+	private static void printUsage() {
+		System.out
+				.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path> <number of workers> <spout parallelism> <splitter parallelism> <counter parallelism> <sink parallelism>");
 	}
 }

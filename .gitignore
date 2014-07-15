@@ -15,6 +15,6 @@ bin
 *.swp
 *.jar
 .DS_Store
-/home/tofi/git/streaming-performance/src/test/resources/testdata/notuploaded
-/home/tofi/git/streaming-performance/src/test/resources/testdata/flink-0.6-incubating-SNAPSHOT
-/home/tofi/git/streaming-performance/src/test/resources/testdata/stratosphere-0.6-SNAPSHOT
+src/test/resources/testdata/notuploaded
+src/test/resources/testdata/flink-0.6-incubating-SNAPSHOT
+src/test/resources/testdata/stratosphere-0.6-SNAPSHOT

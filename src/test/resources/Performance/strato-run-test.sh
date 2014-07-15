@@ -7,7 +7,7 @@ jarFile='streaming-performance-0.1-SNAPSHOT.jar'
 
 if [ -d "${toDir}" ] ; then
 	echo "removing files"
-	./dell-remove-files.sh $stratoDir
+	./strato-remove-files.sh $stratoDir
 
 	paramsWithSpace="${testParams//_/ }"
 
@@ -20,7 +20,7 @@ if [ -d "${toDir}" ] ; then
 	echo "job finished"
 
 	echo "copying"
-	./dell-copy-files.sh $toDir/$testParams $stratoDir
+	./strato-copy-files.sh $toDir/$testParams $stratoDir
 else
 	echo "USAGE:"
 	echo "run <directory> <test params separated by _> <length of test in seconds> <strato directory>"

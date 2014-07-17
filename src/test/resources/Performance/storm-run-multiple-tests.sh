@@ -1,9 +1,9 @@
 #!/bin/bash
 thisDir=$(dirname $0)
 thisDir=$(readlink -f "$thisDir")
-saveDir=/home/tofi/git/streaming-performance/src/test/resources/testdata
+saveDir=${thisDir}/../testdata
 javaDir="$thisDir"/../../../../target/
-stratoDir='flink-0.6-incubating-SNAPSHOT'
+stormDir='apache-storm-0.9.2-incubating'
 
 # $defaultBatchSize $clusterSize $sourceSize $splitterSize $counterSize $sinkSize
 
@@ -19,5 +19,5 @@ mkdir -p $saveDir/$stratoDir
 
 trap "exit" INT
 for i in ${!argsArray[*]}; do
-    ${thisDir}/dell-run-test.sh $saveDir/$stratoDir ${argsArray[$i]} 320 $stratoDir
+    ${thisDir}/storm-run-test.sh $saveDir/$stratoDir ${argsArray[$i]} 320 $stormDir
 done

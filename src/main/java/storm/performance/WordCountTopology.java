@@ -131,10 +131,25 @@ public class WordCountTopology {
 		private Integer count = 0;
 
 		private Values outRecord = new Values("", 0);
+		
+		private PerformanceCounter performanceCounter;
+		
+		private String counterPath;
+		private String argString;
 
+		public WordCount(String[] args, String counterPath) {
+			this.counterPath = counterPath;
+			this.argString = args[3];
+			for(int i = 4; i < args.length; i++){
+				argString += "_" + args[i];
+			}
+		}
+		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
 			_collector = collector;
+			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
+					+ "stormCounter-" + argString + "-" + context.getThisTaskId() + ".csv");
 		}
 
 		@Override
@@ -153,6 +168,7 @@ public class WordCountTopology {
 			outRecord.set(1, count);
 
 			_collector.emit(outRecord);
+			performanceCounter.count();
 		}
 
 		@Override
@@ -163,29 +179,16 @@ public class WordCountTopology {
 
 	public static class Sink extends BaseRichBolt {
 		private static final long serialVersionUID = 1L;
-		
-		private PerformanceCounter performanceCounter;
-		
-		private String counterPath;
-		private String argString;
 
-		public Sink(String[] args, String counterPath) {
-			this.counterPath = counterPath;
-			this.argString = args[3];
-			for(int i = 4; i < args.length; i++){
-				argString += "_" + args[i];
-			}
+		public Sink() {
 		}
 		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
-			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormSink-" + argString + "-" + context.getThisTaskId() + ".csv");
 		}
 
 		@Override
 		public void execute(Tuple tuple) {
-			performanceCounter.count();
 			//System.out.print(tuple.getString(0) + " ");
 			//System.out.println(tuple.getInteger(1));
 		}
@@ -216,9 +219,9 @@ public class WordCountTopology {
 				TopologyBuilder builder = new TopologyBuilder();
 				builder.setSpout("spout", new TextSpout(fileName), spoutParallelism);
 				builder.setBolt("split", new Splitter(), splitterParallelism).noneGrouping("spout");
-				builder.setBolt("count", new WordCount(), counterParallelism).fieldsGrouping(
+				builder.setBolt("count", new WordCount(args, counterPath), counterParallelism).fieldsGrouping(
 						"split", new Fields("word"));
-				builder.setBolt("sink", new Sink(args, counterPath), sinkParallelism).shuffleGrouping("count");
+				builder.setBolt("sink", new Sink(), sinkParallelism).shuffleGrouping("count");
 
 				Config conf = new Config();
 				conf.setDebug(false);

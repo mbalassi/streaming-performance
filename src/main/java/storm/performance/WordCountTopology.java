@@ -179,16 +179,29 @@ public class WordCountTopology {
 
 	public static class Sink extends BaseRichBolt {
 		private static final long serialVersionUID = 1L;
+		
+		private PerformanceCounter performanceCounter;
+		
+		private String counterPath;
+		private String argString;
 
-		public Sink() {
+		public Sink(String[] args, String counterPath) {
+			this.counterPath = counterPath;
+			this.argString = args[3];
+			for(int i = 4; i < args.length; i++){
+				argString += "_" + args[i];
+			}
 		}
 		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
+			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
+					+ "stormSink-" + argString + "-" + context.getThisTaskId() + ".csv");
 		}
 
 		@Override
 		public void execute(Tuple tuple) {
+			performanceCounter.count();
 			//System.out.print(tuple.getString(0) + " ");
 			//System.out.println(tuple.getInteger(1));
 		}
@@ -221,20 +234,20 @@ public class WordCountTopology {
 				builder.setBolt("split", new Splitter(), splitterParallelism).noneGrouping("spout");
 				builder.setBolt("count", new WordCount(args, counterPath), counterParallelism).fieldsGrouping(
 						"split", new Fields("word"));
-				builder.setBolt("sink", new Sink(), sinkParallelism).shuffleGrouping("count");
+				builder.setBolt("sink", new Sink(args, counterPath), sinkParallelism).shuffleGrouping("count");
 
 				Config conf = new Config();
 				conf.setDebug(false);
 				conf.setNumWorkers(numberOfWorkers);
 
 				if (runOnCluster) {
-					StormSubmitter.submitTopology("wordcount", conf, builder.createTopology());
+					StormSubmitter.submitTopology("wordcountperformance", conf, builder.createTopology());
 				} else {
 					// running locally for 40 seconds
 
 					conf.setMaxTaskParallelism(3);
 					LocalCluster cluster = new LocalCluster();
-					cluster.submitTopology("word-count", conf, builder.createTopology());
+					cluster.submitTopology("word-count-performance", conf, builder.createTopology());
 					//Thread.sleep(40000);
 
 					cluster.shutdown();

@@ -14,8 +14,8 @@ if [ -d "${toDir}" ] ; then
 	rm -r $toDir/$testParams/*;
 	mkdir $toDir/$testParams;
 
-	ssh -n storm@dell150.ilab.sztaki.hu "timeout ${length} ./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} storm.performance.WordCountTopology cluster /home/storm/${stormDir}/resources/hamlet.txt /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
-    #ssh -n storm@dell150.ilab.sztaki.hu "$stormDir/bin/stop-cluster.sh; sleep 2; $stormDir/bin/start-cluster.sh"
+	ssh -n storm@dell150.ilab.sztaki.hu "./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} storm.performance.WordCountTopology cluster /home/storm/${stormDir}/resources/hamlet.txt /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
+    ssh -n storm@dell150.ilab.sztaki.hu "sleep ${length}; $stormDir/bin/storm kill wordcountperformance -w 1"
 
 	echo "job finished"
 

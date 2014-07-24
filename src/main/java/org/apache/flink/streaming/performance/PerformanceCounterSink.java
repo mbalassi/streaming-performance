@@ -20,31 +20,27 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Random;
 
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
-import org.apache.flink.api.java.tuple.Tuple2;
 
-public class WordCountPerformanceSink extends SinkFunction<Tuple2<String, Integer>>  {
+public class PerformanceCounterSink<IN extends Tuple> extends SinkFunction<IN>  {
 	private static final long serialVersionUID = 1L;
 	
 	private PerformanceCounter pCounter;
 	private String argString;
 	private String csvPath;
 	
-	public WordCountPerformanceSink(String[] args, String csvPath_){
+	public PerformanceCounterSink(String csvPath_, String argString_) {
 		csvPath = csvPath_;
-		argString = args[4];
-		for(int i = 5; i < args.length; i++){
-			argString += "_" + args[i];
-		}
+		argString = argString_;
 	}
-	
 	
 	@Override
-	public void invoke(Tuple2<String, Integer> tuple) {
+	public void invoke(IN tuple) {
 		pCounter.count();
 	}
-	
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
 		

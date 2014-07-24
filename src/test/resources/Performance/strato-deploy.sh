@@ -4,7 +4,7 @@ perfDir=$2
 stratoDir=$3
 if [ -d "${coredir}"] & [ -d "${perfDir}" ]; then
     
-    ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 2; $stratoDir/bin/stop-cluster.sh"
+    ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 1"
 
     scp $(ls $coreDir/flink-streaming-core/target/flink-stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/flink-streaming-core-0.3.jar
 

@@ -244,17 +244,18 @@ def doAllFolders(folder_path, smooth):
         path = folder_path + "/" + fname
         joinAndPlotAll(path, smooth, path)        
 
-csv_dir = sys.argv[1]
-smooth = int(sys.argv[2])
-save_dir = sys.argv[3]
-mode = "singleFolder"
-if len(sys.argv) > 4:
-    mode = sys.argv[4]
-
-if mode == "singleFolder":
-    joinAndPlotAll(csv_dir, smooth, save_dir)
-elif mode == "multipleFolders":
-    doAllFolders(csv_dir, smooth)
+if __name__ == "__main__":
+    csv_dir = sys.argv[1]
+    smooth = int(sys.argv[2])
+    save_dir = sys.argv[3]
+    mode = "singleFolder"
+    if len(sys.argv) > 4:
+        mode = sys.argv[4]
+    
+    if mode == "singleFolder":
+        joinAndPlotAll(csv_dir, smooth, save_dir)
+    elif mode == "multipleFolders":
+        doAllFolders(csv_dir, smooth)
 
 #folder = '../testdata/0.6/newList'
 #doAllFolders(folder, 5)

@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.flink.streaming.util.PerformanceCounter;
 
@@ -51,29 +52,47 @@ public class WordCountTopology {
 		BufferedReader br = null;
 		private String line = new String();
 		private Values outRecord = new Values("");
+		
+		private PerformanceCounter performanceCounter;
+		
+		private String counterPath;
+		private String argString;
 
-		public TextSpout(String path) {
+		public TextSpout(String path, String[] args, String counterPath) {
 			this.path = path;
+			this.counterPath = counterPath;
+			this.argString = args[3];
+			for(int i = 4; i < args.length; i++){
+				argString += "_" + args[i];
+			}
 		}
 
 		@Override
 		public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+			Random rnd = new Random();
 			_collector = collector;
+			try {
+				br = new BufferedReader(new FileReader(path));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
+					+ "stormSpout-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
 		public void nextTuple() {
 			try {
-				// ide kell a while true?
-				br = new BufferedReader(new FileReader(path));
 				line = br.readLine();
-				while (line != null) {
-					if (line != "") {
-						outRecord.set(0, line);
-						_collector.emit(outRecord);
+				while (line == "" || line == null) {
+					if (line == null) {
+						br = new BufferedReader(new FileReader(path));
 					}
 					line = br.readLine();
 				}
+				outRecord.set(0, line);
+				_collector.emit(outRecord);
+				performanceCounter.count();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -101,10 +120,26 @@ public class WordCountTopology {
 		OutputCollector _collector;
 		
 		private Values outRecord = new Values("");
+		
+		private PerformanceCounter performanceCounter;
+		
+		private String counterPath;
+		private String argString;
 
+		public Splitter(String[] args, String counterPath) {
+			this.counterPath = counterPath;
+			this.argString = args[3];
+			for(int i = 4; i < args.length; i++){
+				argString += "_" + args[i];
+			}
+		}
+		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
+			Random rnd = new Random();
 			_collector = collector;
+			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
+					+ "stormSplitter-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
@@ -112,6 +147,7 @@ public class WordCountTopology {
 			for (String word : tuple.getString(0).split(" ")) {
 				outRecord.set(0, word);
 				_collector.emit(outRecord);
+				performanceCounter.count();
 			}
 		}
 
@@ -147,9 +183,10 @@ public class WordCountTopology {
 		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
+			Random rnd = new Random();
 			_collector = collector;
 			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormCounter-" + argString + "-" + context.getThisTaskId() + ".csv");
+					+ "stormCounter-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
@@ -195,15 +232,14 @@ public class WordCountTopology {
 		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
+			Random rnd = new Random();
 			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormSink-" + argString + "-" + context.getThisTaskId() + ".csv");
+					+ "stormSink-" + argString + "-" + /*context.getThisTaskId()*/ String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
 		public void execute(Tuple tuple) {
 			performanceCounter.count();
-			//System.out.print(tuple.getString(0) + " ");
-			//System.out.println(tuple.getInteger(1));
 		}
 
 		@Override
@@ -230,8 +266,8 @@ public class WordCountTopology {
 				int sinkParallelism = Integer.parseInt(args[7]);
 
 				TopologyBuilder builder = new TopologyBuilder();
-				builder.setSpout("spout", new TextSpout(fileName), spoutParallelism);
-				builder.setBolt("split", new Splitter(), splitterParallelism).noneGrouping("spout");
+				builder.setSpout("spout", new TextSpout(fileName, args, counterPath), spoutParallelism);
+				builder.setBolt("split", new Splitter(args, counterPath), splitterParallelism).shuffleGrouping("spout");
 				builder.setBolt("count", new WordCount(args, counterPath), counterParallelism).fieldsGrouping(
 						"split", new Fields("word"));
 				builder.setBolt("sink", new Sink(args, counterPath), sinkParallelism).shuffleGrouping("count");
@@ -248,7 +284,7 @@ public class WordCountTopology {
 					conf.setMaxTaskParallelism(3);
 					LocalCluster cluster = new LocalCluster();
 					cluster.submitTopology("word-count-performance", conf, builder.createTopology());
-					//Thread.sleep(40000);
+					Thread.sleep(40000);
 
 					cluster.shutdown();
 				}

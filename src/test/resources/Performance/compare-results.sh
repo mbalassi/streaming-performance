@@ -1,27 +1,23 @@
 #!/bin/bash
 thisDir=$(dirname $0)
 thisDir=$(readlink -f "$thisDir")
-result1Dir=$1
-result1Postfix=$2
-result2Dir=$3
-result2Postfix=$4
-saveDir=$5
+compareDir=$1
+argArray=("$@")
 
-if [ -d $result1Dir ] & [ -d $result2Dir ] & [ "$#" = "5" ]; then
-
-    mkdir -p $saveDir
-
-    for j in $(ls $result1Dir); do 
-        cp $result1Dir/$j $saveDir/$(echo $j | awk '{split($0,a,"-"); print a[1] "-" a[2] "'_$result1Postfix'" "-" a[3]}'); 
+if [ $# -gt 4 ]; then
+    mkdir -p $compareDir
+    for i in ${!argArray[*]}; do
+        arg=${argArray[$i]}
+        if [ -d $arg ] & (($i % 2 )); then
+            resultDir=${argArray[$i]}
+            resultPostfix=${argArray[$i + 1]}
+            ${thisDir}/copy-rename-results.sh $resultDir $resultPostfix $compareDir
+        fi
     done
-
-    for j in $(ls $result2Dir); do 
-        cp $result2Dir/$j $saveDir/$(echo $j | awk '{split($0,a,"-"); print a[1] "-" a[2] "'_$result2Postfix'" "-" a[3]}'); 
-    done
-
-    python PerformanceTracker.py $saveDir 5 $saveDir singleFolder
-
+    python ${thisDir}/PerformanceTracker.py $compareDir 5 $compareDir singleFolder
 else
     echo "USAGE:"
-	echo "run <result1 directory> <result1 postfix> <result2 directory> <result2 postfix> <save directory>"
+	echo "run <save directory> <result1 directory> <result1 postfix> <result2 directory> <result2 postfix> [<result3 directory> <result3 postfix>...]"
 fi
+
+

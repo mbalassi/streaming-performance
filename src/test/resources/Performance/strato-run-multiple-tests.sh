@@ -7,7 +7,7 @@ stratoDir='flink-0.6-incubating-SNAPSHOT'
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
 classPath='org.apache.flink.streaming.performance.WordCountPerformanceLocal'
 
-argsArray=("32_32_10_10_10")  
+argsArray=("24_2_8_16_16")  
 
 mkdir -p $saveDir/$stratoDir
 

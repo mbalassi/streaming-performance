@@ -14,6 +14,13 @@ if [ -d "${toDir}" ] ; then
 	rm -r $toDir/$testParams/*;
 	mkdir $toDir/$testParams;
 
+    ssh -n storm@dell150.ilab.sztaki.hu '
+        mkdir -p '$stormDir'/logs/counter;
+        mkdir -p '$stormDir'/logs/all_tests/counter; 
+        for j in {101..125} {127..142} 144 145; do
+            ssh dell$j "mkdir -p '$stormDir'/logs/counter"
+        done'
+    
 	ssh -n storm@dell150.ilab.sztaki.hu "./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} storm.performance.WordCountTopology cluster /home/storm/${stormDir}/resources/hamlet.txt /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
     ssh -n storm@dell150.ilab.sztaki.hu "sleep ${length}; $stormDir/bin/storm kill wordcountperformance -w 1"
 

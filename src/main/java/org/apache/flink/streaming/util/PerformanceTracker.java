@@ -15,7 +15,10 @@
 
 package org.apache.flink.streaming.util;
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,6 +43,8 @@ public class PerformanceTracker implements Serializable{
 	protected String name;
 
 	protected long buffer;
+	
+	protected boolean firstWrite = true;
 
 	public PerformanceTracker(String name, String fname) {
 		timeStamps = new ArrayList<Long>();
@@ -92,6 +97,9 @@ public class PerformanceTracker implements Serializable{
 				System.out.println("csv-be iras!!");
 				writeCSV();
 				lastDump = ctime;
+				values.clear();
+				labels.clear();
+				timeStamps.clear();
 			}
 		}
 
@@ -117,8 +125,11 @@ public class PerformanceTracker implements Serializable{
 	public String toString() {
 		StringBuilder csv = new StringBuilder();
 
-		csv.append("Time," + name + ",Label\n");
-
+		if (firstWrite) {
+			firstWrite = false;
+			csv.append("Time," + name + ",Label\n");
+		}
+			
 		for (int i = 0; i < timeStamps.size(); i++) {
 			csv.append(timeStamps.get(i) + "," + values.get(i) + "," + labels.get(i) + "\n");
 		}
@@ -129,11 +140,11 @@ public class PerformanceTracker implements Serializable{
 	public void writeCSV() {
 
 		try {
-			PrintWriter out = new PrintWriter(fname);
+			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fname, true)));
 			out.print(toString());
 			out.close();
 
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			System.out.println("CSV output file not found");
 		}
 

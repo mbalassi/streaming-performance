@@ -53,46 +53,30 @@ public class WordCountTopology {
 		private String line = new String();
 		private Values outRecord = new Values("");
 		
-		private PerformanceCounter performanceCounter;
-		
-		private String counterPath;
-		private String argString;
-
-		public TextSpout(String path, String[] args, String counterPath) {
+		public TextSpout(String path) {
 			this.path = path;
-			this.counterPath = counterPath;
-			this.argString = args[3];
-			for(int i = 4; i < args.length; i++){
-				argString += "_" + args[i];
-			}
 		}
 
 		@Override
 		public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-			Random rnd = new Random();
 			_collector = collector;
 			try {
 				br = new BufferedReader(new FileReader(path));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormSpout-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
 		public void nextTuple() {
 			try {
 				line = br.readLine();
-				while (line == "" || line == null) {
-					if (line == null) {
-						br = new BufferedReader(new FileReader(path));
-					}
+				if (line == null) {
+					br = new BufferedReader(new FileReader(path));
 					line = br.readLine();
 				}
 				outRecord.set(0, line);
 				_collector.emit(outRecord);
-				performanceCounter.count();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -121,25 +105,9 @@ public class WordCountTopology {
 		
 		private Values outRecord = new Values("");
 		
-		private PerformanceCounter performanceCounter;
-		
-		private String counterPath;
-		private String argString;
-
-		public Splitter(String[] args, String counterPath) {
-			this.counterPath = counterPath;
-			this.argString = args[3];
-			for(int i = 4; i < args.length; i++){
-				argString += "_" + args[i];
-			}
-		}
-		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
-			Random rnd = new Random();
 			_collector = collector;
-			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormSplitter-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
@@ -147,7 +115,6 @@ public class WordCountTopology {
 			for (String word : tuple.getString(0).split(" ")) {
 				outRecord.set(0, word);
 				_collector.emit(outRecord);
-				performanceCounter.count();
 			}
 		}
 
@@ -168,25 +135,9 @@ public class WordCountTopology {
 
 		private Values outRecord = new Values("", 0);
 		
-		private PerformanceCounter performanceCounter;
-		
-		private String counterPath;
-		private String argString;
-
-		public WordCount(String[] args, String counterPath) {
-			this.counterPath = counterPath;
-			this.argString = args[3];
-			for(int i = 4; i < args.length; i++){
-				argString += "_" + args[i];
-			}
-		}
-		
 		@Override
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
-			Random rnd = new Random();
 			_collector = collector;
-			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormCounter-" + argString + "-" + String.valueOf(rnd.nextInt(10000000)) + ".csv");
 		}
 
 		@Override
@@ -205,7 +156,6 @@ public class WordCountTopology {
 			outRecord.set(1, count);
 
 			_collector.emit(outRecord);
-			performanceCounter.count();
 		}
 
 		@Override
@@ -234,7 +184,7 @@ public class WordCountTopology {
 		public void prepare(Map map, TopologyContext context, OutputCollector collector) {
 			Random rnd = new Random();
 			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, counterPath
-					+ "stormSink-" + argString + "-" + /*context.getThisTaskId()*/ String.valueOf(rnd.nextInt(10000000)) + ".csv");
+					+ "stormSink-" + argString + "-" + context.getThisTaskId() + ".csv");
 		}
 
 		@Override
@@ -266,25 +216,26 @@ public class WordCountTopology {
 				int sinkParallelism = Integer.parseInt(args[7]);
 
 				TopologyBuilder builder = new TopologyBuilder();
-				builder.setSpout("spout", new TextSpout(fileName, args, counterPath), spoutParallelism);
-				builder.setBolt("split", new Splitter(args, counterPath), splitterParallelism).shuffleGrouping("spout");
-				builder.setBolt("count", new WordCount(args, counterPath), counterParallelism).fieldsGrouping(
+				builder.setSpout("spout", new TextSpout(fileName), spoutParallelism);
+				builder.setBolt("split", new Splitter(), splitterParallelism).shuffleGrouping("spout");
+				builder.setBolt("count", new WordCount(), counterParallelism).fieldsGrouping(
 						"split", new Fields("word"));
 				builder.setBolt("sink", new Sink(args, counterPath), sinkParallelism).shuffleGrouping("count");
 
 				Config conf = new Config();
+				conf.setNumAckers(0);
 				conf.setDebug(false);
 				conf.setNumWorkers(numberOfWorkers);
 
 				if (runOnCluster) {
 					StormSubmitter.submitTopology("wordcountperformance", conf, builder.createTopology());
 				} else {
-					// running locally for 40 seconds
+					// running locally for 70 seconds
 
 					conf.setMaxTaskParallelism(3);
 					LocalCluster cluster = new LocalCluster();
 					cluster.submitTopology("word-count-performance", conf, builder.createTopology());
-					Thread.sleep(40000);
+					Thread.sleep(70000);
 
 					cluster.shutdown();
 				}

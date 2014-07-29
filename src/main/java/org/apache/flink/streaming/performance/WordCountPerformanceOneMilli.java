@@ -56,11 +56,11 @@ public class WordCountPerformanceOneMilli {
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env
 						.readTextStream(sourcePath, sourceSize)
-							.setBufferTimeout(bufferTimeout).forward()
+							.setBufferTimeout(bufferTimeout)
 						.flatMap(new WordCountPerformanceSplitter())
 							.setParallelism(splitterSize).setBufferTimeout(bufferTimeout).partitionBy(0)
 						.map(new WordCountPerformanceCounter())
-							.setParallelism(counterSize).setBufferTimeout(bufferTimeout).forward()
+							.setParallelism(counterSize).setBufferTimeout(bufferTimeout)
 						.addSink(new WordCountPerformanceSink(args, csvPath))
 							.setParallelism(sinkSize);
 				

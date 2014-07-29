@@ -6,9 +6,9 @@ if [ -d "${coredir}"] & [ -d "${perfDir}" ]; then
     
     ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 1"
 
-    scp $(ls $coreDir/flink-streaming-core/target/flink-stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/flink-streaming-core-0.3.jar
+    scp $(ls $coreDir/flink-streaming-core/target/flink-stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/flink-streaming-core-0.6-incubating-SNAPSHOT.jar
 
-    scp $(ls $coreDir/flink-streaming-connectors/target/flink-stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/flink-streaming-connectors-0.3.jar
+    scp $(ls $coreDir/flink-streaming-connectors/target/flink-stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/flink-streaming-connectors-0.6-incubating-SNAPSHOT.jar
 
     scp $(ls $perfDir/target/stream* | head -n 1) strato@dell150.ilab.sztaki.hu:$stratoDir/lib/streaming-performance-0.1-SNAPSHOT.jar
 
@@ -16,8 +16,8 @@ if [ -d "${coredir}"] & [ -d "${perfDir}" ]; then
 	for j in {101..125} {127..142} 144 145;
 	do
 		echo -n $j,
-		scp '$stratoDir'/lib/flink-streaming-core-0.3.jar strato@dell$j:'$stratoDir'/lib/;
-		scp '$stratoDir'/lib/flink-streaming-connectors-0.3.jar strato@dell$j:'$stratoDir'/lib/;
+		scp '$stratoDir'/lib/flink-streaming-core-0.6-incubating-SNAPSHOT.jar strato@dell$j:'$stratoDir'/lib/;
+		scp '$stratoDir'/lib/flink-streaming-connectors-0.6-incubating-SNAPSHOT.jar strato@dell$j:'$stratoDir'/lib/;
         scp '$stratoDir'/lib/streaming-performance-0.1-SNAPSHOT.jar strato@dell$j:'$stratoDir'/lib/
 	done
 	'

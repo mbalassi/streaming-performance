@@ -14,5 +14,5 @@ mkdir -p $saveDir/$stormDir
 
 trap "exit" INT
 for i in ${!argsArray[*]}; do
-    ${thisDir}/storm-run-test.sh $saveDir/$stormDir ${argsArray[$i]} 200 $stormDir
+    ${thisDir}/storm-run-test.sh $saveDir/$stormDir ${argsArray[$i]} 320 $stormDir
 done

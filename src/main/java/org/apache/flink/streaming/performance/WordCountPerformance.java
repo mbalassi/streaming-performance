@@ -22,7 +22,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.DataStream;
 import org.apache.flink.streaming.api.StreamExecutionEnvironment;
 
-public class WordCountPerformanceLocal {
+public class WordCountPerformance {
 
 	public static void main(String[] args) {
 

@@ -22,11 +22,11 @@ package org.apache.flink.streaming.performance;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.flink.api.java.functions.MapFunction;
+import org.apache.flink.api.java.functions.RichMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
 
-public class WordCountPerformanceCounter extends MapFunction<Tuple1<String>, Tuple2<String, Integer>> {
+public class WordCountPerformanceCounter extends RichMapFunction<Tuple1<String>, Tuple2<String, Integer>> {
 	private static final long serialVersionUID = 1L;
 
 	private Map<String, Integer> wordCounts = new HashMap<String, Integer>();

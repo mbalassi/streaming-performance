@@ -24,21 +24,24 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Random;
 
-import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
 
-public class PerformanceCounterSink<IN extends Tuple> extends SinkFunction<IN>  {
+public class PerformanceCounterSink<IN> extends SinkFunction<IN>  {
 	private static final long serialVersionUID = 1L;
 	
 	private PerformanceCounter pCounter;
 	private String argString;
 	private String csvPath;
 	
-	public PerformanceCounterSink(String csvPath_, String argString_) {
+	public PerformanceCounterSink(String[] args, String csvPath_) {
 		csvPath = csvPath_;
-		argString = argString_;
+		argString = args[4];
+		for(int i = 5; i < args.length; i++){
+			argString += "_" + args[i];
+		}
 	}
+	
 	
 	@Override
 	public void invoke(IN tuple) {

@@ -24,7 +24,7 @@ import org.apache.flink.streaming.api.datastream.IterativeDataStream;
 import org.apache.flink.streaming.api.datastream.SplitDataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class PagerankIterative {
+public class PageRankIterativeMain {
 
 	public static void main(String[] args) {
 

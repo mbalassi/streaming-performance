@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.flink.streaming.performance.iterative;
+package org.apache.flink.streaming.util;
 
 import java.io.Serializable;
 import java.util.HashMap;

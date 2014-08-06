@@ -26,7 +26,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountPerformance {
+public class WordCountPerformanceForwardMain {
 
 	public static void main(String[] args) {
 
@@ -58,10 +58,10 @@ public class WordCountPerformance {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env
-						.readTextStream(sourcePath, sourceSize)
+						.readTextStream(sourcePath, sourceSize).forward()
 						.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
 							.partitionBy(0)
-						.map(new WordCountPerformanceCounter()).setParallelism(counterSize)
+						.map(new WordCountPerformanceCounter()).setParallelism(counterSize).forward()
 						.addSink(new WordCountPerformanceSink(args, csvPath));
 							//.setParallelism(sinkSize); //TODO
 				

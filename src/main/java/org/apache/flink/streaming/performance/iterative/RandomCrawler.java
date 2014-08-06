@@ -24,6 +24,8 @@ import java.util.Random;
 import org.apache.flink.api.java.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.util.DirectedGraph;
+import org.apache.flink.streaming.util.VertexStore;
 import org.apache.flink.util.Collector;
 
 public class RandomCrawler extends RichFlatMapFunction<Tuple3<Integer, Integer, Integer>, Tuple3<Integer, Integer, Integer>> {

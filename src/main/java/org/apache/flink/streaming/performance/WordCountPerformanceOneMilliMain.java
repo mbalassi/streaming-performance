@@ -26,7 +26,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountPerformanceHalfSec {
+public class WordCountPerformanceOneMilliMain {
 	public static void main(String[] args) {
 
 		if (args != null && args.length == 9) {
@@ -55,7 +55,7 @@ public class WordCountPerformanceHalfSec {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
-				int bufferTimeout = 500;
+				int bufferTimeout = 1;
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env

@@ -28,7 +28,7 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
-public class StormWordCountPerformance {
+public class StormWordCountPerformanceMain {
 	
 	public static void main(String[] args) throws Exception {
 

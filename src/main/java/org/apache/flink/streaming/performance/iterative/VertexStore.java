@@ -27,9 +27,11 @@ public class VertexStore implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public Map<Integer, Integer> vertices=null;
+	public int largestVertexNum;
 	
 	public VertexStore(){
 		vertices=new HashMap<Integer, Integer>();
+		largestVertexNum = 0;
 	}
 	
 	public void setValue(int node, Integer value){
@@ -39,6 +41,9 @@ public class VertexStore implements Serializable {
 	public void addVertex(Integer vertex) {
 		if(!vertices.containsKey(vertex)) {
 			vertices.put(vertex, 0);
+			if(largestVertexNum < vertex) {
+				largestVertexNum = vertex;
+			}
 		}
 	}
 

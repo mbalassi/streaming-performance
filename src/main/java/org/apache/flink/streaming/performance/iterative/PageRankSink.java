@@ -19,13 +19,13 @@
 package org.apache.flink.streaming.performance.iterative;
 
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.streaming.api.function.sink.SinkFunction;
+import org.apache.flink.streaming.api.function.sink.RichSinkFunction;
 
-public class PageRankSink extends SinkFunction<Tuple3<Integer, Integer, Integer>> {
+public class PageRankSink extends RichSinkFunction<Tuple3<Integer, Integer, Integer>> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void invoke(Tuple3<Integer, Integer, Integer> tuple) {
-		//System.out.println(tuple.toString());
+		System.out.println(tuple.toString());
 	}
 }

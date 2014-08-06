@@ -27,7 +27,7 @@ import java.util.Random;
 import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
 
-public class PerformanceCounterSink<IN> extends SinkFunction<IN>  {
+public class PerformanceCounterSink<IN> implements SinkFunction<IN>  {
 	private static final long serialVersionUID = 1L;
 	
 	private PerformanceCounter pCounter;

@@ -12,7 +12,7 @@ public class PageRankOutputSelector extends
 	@Override
 	public void select(Tuple3<Integer, Integer, Integer> tuple,
 			Collection<String> outputs) {
-		if(tuple.f2.equals(0)) {
+		if(tuple.f2.equals(0) || tuple.f2.equals(-3)) {
 			outputs.add("iterate");
 		} else if(tuple.f2.equals(2)) {
 			outputs.add("sink");

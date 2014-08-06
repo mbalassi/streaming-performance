@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.DataStream;
-import org.apache.flink.streaming.api.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class WordCountPerformance {
 
@@ -62,8 +62,8 @@ public class WordCountPerformance {
 						.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
 							.partitionBy(0)
 						.map(new WordCountPerformanceCounter()).setParallelism(counterSize)
-						.addSink(new WordCountPerformanceSink(args, csvPath))
-							.setParallelism(sinkSize);
+						.addSink(new WordCountPerformanceSink(args, csvPath));
+							//.setParallelism(sinkSize); //TODO
 				
 				env.setExecutionParallelism(clusterSize);
 				env.execute();

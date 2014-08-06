@@ -28,7 +28,7 @@ import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
 import org.apache.flink.api.java.tuple.Tuple2;
 
-public class WordCountPerformanceSink extends SinkFunction<Tuple2<String, Integer>>  {
+public class WordCountPerformanceSink implements SinkFunction<Tuple2<String, Integer>>  {
 	private static final long serialVersionUID = 1L;
 	
 	private PerformanceCounter pCounter;

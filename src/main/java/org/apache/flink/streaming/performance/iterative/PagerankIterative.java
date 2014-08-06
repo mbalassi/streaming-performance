@@ -19,17 +19,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.streaming.api.DataStream;
-import org.apache.flink.streaming.api.IterativeDataStream;
-import org.apache.flink.streaming.api.SplitDataStream;
-import org.apache.flink.streaming.api.StreamExecutionEnvironment;
-import org.apache.flink.streaming.performance.PerformanceCounterSink;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.IterativeDataStream;
+import org.apache.flink.streaming.api.datastream.SplitDataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class PagerankIterative {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 7) {
+		if (args != null && args.length == 6) {
 			try {
 				//System.setOut(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
 				//System.setErr(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
@@ -45,31 +44,33 @@ public class PagerankIterative {
 		
 				int clusterSize = Integer.valueOf(args[4]);
 				int crawlerSize = Integer.valueOf(args[5]);
-				int startingEdgeNum = Integer.valueOf(args[6]);
+				int edgeAddRemoveSleep = 100;
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							"10.1.3.150", 6123, clusterSize, 
-							jarPath);
+							"10.1.3.150", 6123, clusterSize, jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
 				IterativeDataStream<Tuple3<Integer, Integer, Integer>> iterateBegin = env
-						.addSource(new EdgeSource(edgeSourcePath)).broadcast()
+						.addSource(new EdgeSource(edgeSourcePath, crawlerSize, edgeAddRemoveSleep)).partitionBy(0)
 						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward().iterate();
 				
 				DataStream<Tuple3<Integer, Integer, Integer>> iterateEnd = iterateBegin
-						.flatMap(new RandomCrawler(startingEdgeNum, 1, 10000)).setParallelism(crawlerSize).distribute()
-						.map(new DummyForwarderMap()).setParallelism(crawlerSize).distribute();
+						.flatMap(new RandomCrawler(100000, 10000)).setParallelism(crawlerSize).partitionBy(0)
+						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward();
+				
+				iterateBegin.closeWith(iterateEnd);
 				
 				SplitDataStream<Tuple3<Integer, Integer, Integer>> splitDS = 
-						iterateBegin.closeWith(iterateEnd).split(new PageRankOutputSelector());
+						iterateBegin.split(new PageRankOutputSelector());
 				
 				splitDS.select("sink").addSink(
-						new PerformanceCounterSink<Tuple3<Integer, Integer, Integer>>(args, csvPath){
-							private static final long serialVersionUID = 1L;});
+						//new PerformanceCounterSink<Tuple3<Integer, Integer, Integer>>(args, csvPath){
+						//	private static final long serialVersionUID = 1L;});
+						new PageRankSink());
 				
 				env.setExecutionParallelism(clusterSize);
 				env.execute();

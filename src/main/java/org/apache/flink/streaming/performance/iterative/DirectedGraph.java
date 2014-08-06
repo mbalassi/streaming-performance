@@ -43,4 +43,18 @@ public class DirectedGraph implements Serializable {
 			toVertices.put(targetNode, new ArrayList<Integer>());
 		}
 	}
+	
+	public List<Integer> getToEdgeList(Integer i) {
+		if(toVertices.containsKey(i)) {
+			return toVertices.get(i);
+		} else {
+			return new ArrayList<Integer>();
+		}
+	}
+
+	public void removeEdge(Integer sourceNode, Integer targetNode) {
+		if(toVertices.containsKey(sourceNode)) {
+			toVertices.get(sourceNode).remove(targetNode);
+		}
+	}
 }

@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.IterativeDataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.datastream.SplitDataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -54,18 +54,20 @@ public class PageRankIterativeMain {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
+				env.setBufferTimeout(100);
+				
 				IterativeDataStream<Tuple3<Integer, Integer, Integer>> iterateBegin = env
 						.addSource(new EdgeSource(edgeSourcePath, crawlerSize, edgeAddRemoveSleep)).partitionBy(0)
 						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward().iterate();
-				
-				DataStream<Tuple3<Integer, Integer, Integer>> iterateEnd = iterateBegin
+
+				SingleOutputStreamOperator<Tuple3<Integer, Integer, Integer>, ?> iterateEnd = iterateBegin
 						.flatMap(new RandomCrawler(100000, 10000)).setParallelism(crawlerSize).partitionBy(0)
 						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward();
 				
 				iterateBegin.closeWith(iterateEnd);
 				
 				SplitDataStream<Tuple3<Integer, Integer, Integer>> splitDS = 
-						iterateBegin.split(new PageRankOutputSelector());
+						iterateEnd.split(new PageRankOutputSelector());
 				
 				splitDS.select("sink").addSink(
 						//new PerformanceCounterSink<Tuple3<Integer, Integer, Integer>>(args, csvPath){

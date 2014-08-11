@@ -30,7 +30,7 @@ public class WordCountLatencyMain {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 9) {
+		if (args != null && args.length == 10) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String sourcePath = args[1];
@@ -46,6 +46,7 @@ public class WordCountLatencyMain {
 				int splitterSize = Integer.valueOf(args[6]);
 				int counterSize = Integer.valueOf(args[7]);
 				int sinkSize = Integer.valueOf(args[8]);
+				int intervalLength = Integer.valueOf(args[9]);
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
@@ -64,7 +65,7 @@ public class WordCountLatencyMain {
 						.flatMap(new WordCountLatencySplitter()).setParallelism(splitterSize)
 							.partitionBy(0)
 						.map(new WordCountLatencyCounter()).setParallelism(counterSize)
-						.addSink(new WordCountLatencySink(args, csvPath))
+						.addSink(new WordCountLatencySink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				
 				env.setExecutionParallelism(clusterSize);

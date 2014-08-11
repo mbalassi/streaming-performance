@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.flink.streaming.performance;
+package org.apache.flink.streaming.performance.general;
 
 import java.io.File;
 import java.io.IOException;

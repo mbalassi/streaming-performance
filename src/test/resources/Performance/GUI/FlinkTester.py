@@ -38,6 +38,14 @@ def get_classes(jar_file):
             retval.append([classPath, className])
     return retval
     
+def get_classes_with_main(jar_file):
+    cList = get_classes(jar_file)
+    retval = []
+    for c in cList:
+        if c[1][-4:] == "Main":
+            retval.append(c)
+    return retval
+    
 def nth_parent_directory(dir_path, n = 1):
     return dir_path.split("/")[-1 * n - 1]
     
@@ -72,9 +80,6 @@ def list_in_list(small, big):
     return False
 
 
-
-
-
 ############## TKINTER #################
 
 
@@ -101,12 +106,16 @@ class JarHandler:
         self.browseButton = Button(self.topTopFrame, text="Browse", command=self.loadFile, width=10)
         self.browseButton.pack(side=LEFT)
         
-        self.checkButton = Button(self.topTopFrame, text="Add", command=self.addSelectedClassPaths, width=10)
-        self.checkButton.pack(side=RIGHT)
+        self.addButton = Button(self.topTopFrame, text="Add", command=self.addSelectedClassPaths, width=10)
+        self.addButton.pack(side=LEFT)
+        
+        self.onlyClassesWithMain = IntVar()
+        self.classCheckButton = Checkbutton(self.topTopFrame, text="OnlyMain", variable=self.onlyClassesWithMain,
+            onvalue=1, offvalue=0)
+        self.classCheckButton.pack(side=LEFT)
         
         self.jarName = "none"
         self.loadedJars = []
-        
         
         self.jarScrollbar = Scrollbar(self.topBottomFrame, orient=VERTICAL)
         self.jarListBox = Listbox(self.topBottomFrame, width=30, height=20, selectmode=MULTIPLE, 
@@ -158,7 +167,10 @@ class JarHandler:
             self.browseJar()
             
     def browseJar(self):
-        self.loadedJars = get_classes(self.jarName)
+        if self.onlyClassesWithMain.get() == 1:
+            self.loadedJars = get_classes_with_main(self.jarName)
+        else:
+            self.loadedJars = get_classes(self.jarName)
         jarNames = [l[1] for l in self.loadedJars]
         self.jarListBox.delete(0, END)
         for item in jarNames:
@@ -206,7 +218,7 @@ class JarHandler:
         className = self.addedListBox.get(i)
         arg = self.argText.get("sentinel", END).rstrip('\n')
         newCustom = [classPath, arg]
-        newCustomString = className + " -> " + replace_spaces(arg)        
+        newCustomString = className + " -> " + replace_spaces(arg)
         
         if not list_in_list(newCustom, self.customArgClasses):
             self.customArgClasses.append(newCustom)
@@ -249,8 +261,8 @@ class ExistingResultHandler:
         self.browseResultsDirButton = Button(self.topTopFrame, text="Browse", command=self.loadResultsDirectory, width=10)
         self.browseResultsDirButton.pack(side=LEFT)
         
-        self.checkButton = Button(self.topTopFrame, text="Add", command=self.getSelectedResultsPath, width=10)
-        self.checkButton.pack(side=RIGHT)
+        self.addButton = Button(self.topTopFrame, text="Add", command=self.getSelectedResultsPath, width=10)
+        self.addButton.pack(side=RIGHT)
         
         self.resultsDirName = ""
         self.existingResults = []
@@ -378,8 +390,11 @@ class OutputHandler:
         self.frame = Frame(master)
         self.frame.pack(side=side)
         
-        self.browseButton = Button(self.frame, text="Run", command=self.runScript, width=10)
+        self.browseButton = Button(self.frame, text="Browse", command=self.selectSaveDir, width=10)
         self.browseButton.pack(side=TOP)        
+        
+        self.runButton = Button(self.frame, text="Run", command=self.runScript, width=10)
+        self.runButton.pack(side=TOP)        
         
         imageFile = "feather-small.gif"
         self.img2 = ImageTk.PhotoImage(Image.open(imageFile))
@@ -394,9 +409,14 @@ class OutputHandler:
         self.panel = Label(self.frame, image = self.img)
         self.panel.pack(side=RIGHT)
         
-        self.saveDir = "TODO"
+        self.saveDir = ""
         self.defaultTestParams = "TODO"
         self.testLength = "TODO"
+        
+    def selectSaveDir(self):
+        self.saveDir = tkFileDialog.askdirectory()
+        if not self.saveDir:
+            self.saveDir = ""
         
     def makeClassArgs(self):
         s = ""
@@ -481,20 +501,36 @@ if os.path.isfile(save_file):
     with open(save_file, "rt") as f:
         jarPath = f.readline().rstrip("\n")
         resultsDir = f.readline().rstrip("\n")
+        onlyClassesWithMain = int(f.readline().rstrip("\n"))
+        saveDir = f.readline().rstrip("\n")
 
-        app.jarHandler.jarName = jarPath
-        app.jarHandler.browseJar()
+        if onlyClassesWithMain == 1:
+            app.jarHandler.classCheckButton.select()
 
-        app.existingResultHandler.resultsDirName = resultsDir
-        app.existingResultHandler.browseResultsDir()        
-
+        if jarPath != '':
+            app.jarHandler.jarName = jarPath
+            app.jarHandler.browseJar()
+        
+        if resultsDir != '':
+            app.existingResultHandler.resultsDirName = resultsDir
+            app.existingResultHandler.browseResultsDir()
+            
+        if saveDir != '':
+            app.outputHandler.saveDir = saveDir
+            
 root.mainloop()
-#root.destroy() # optional; see description below
+#root.destroy()
 
 with open(save_file, "wt") as f:
     jarPath = app.jarHandler.jarName
     resultsDir = app.existingResultHandler.resultsDirName
+    onlyClassesWithMain = str(app.jarHandler.onlyClassesWithMain.get())
+    saveDir = str(app.outputHandler.saveDir)    
+    
     f.write(jarPath)
     f.write("\n")
     f.write(resultsDir)
-
+    f.write("\n")
+    f.write(onlyClassesWithMain)
+    f.write("\n")
+    f.write(saveDir)

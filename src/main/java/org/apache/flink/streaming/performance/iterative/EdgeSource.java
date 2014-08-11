@@ -55,7 +55,7 @@ public class EdgeSource extends RichSourceFunction<Tuple3<Integer, Integer, Inte
 	@Override
 	public void invoke(Collector<Tuple3<Integer, Integer, Integer>> collector) throws IOException {
 		buildGraphFromFile(collector);
-		doRandomAddsRemoves(collector);
+		//doRandomAddsRemoves(collector);
 	}
 
 	private void doRandomAddsRemoves(Collector<Tuple3<Integer, Integer, Integer>> collector) {
@@ -92,7 +92,7 @@ public class EdgeSource extends RichSourceFunction<Tuple3<Integer, Integer, Inte
 
 	private void sendOperation(
 			Collector<Tuple3<Integer, Integer, Integer>> collector, String line) {
-		String[] words = line.split(" ");
+		String[] words = line.split(" |\\t");
 		Integer from = Integer.valueOf(words[0]);
 		Integer to = Integer.valueOf(words[1]);
 		Integer operation = Integer.valueOf(words[2]);

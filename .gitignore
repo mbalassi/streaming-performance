@@ -19,3 +19,4 @@ src/test/resources/testdata/notuploaded
 src/test/resources/testdata/flink-0.6-incubating-SNAPSHOT
 src/test/resources/testdata/stratosphere-0.6-SNAPSHOT
 src/test/resources/testdata/storm/
+src/test/resources/testdata/Performance/GUI/.FlinkTesterSave

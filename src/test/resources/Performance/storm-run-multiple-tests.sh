@@ -8,7 +8,7 @@ stormDir='storm-dist'
 
 # $workercount $sourceSize $splitterSize $counterSize $sinkSize
 
-argsArray=("24_2_8_16_16")  
+argsArray=("10_10")  
 
 mkdir -p $saveDir/$stormDir
 

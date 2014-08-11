@@ -4,6 +4,10 @@ testParams=$2
 length=$3
 stormDir=$4
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
+#classPath=storm.performance.WordCountTopology
+classPath=org.apache.storm.streaming.performance.iterative.StormPageRankIterativeMain
+#resourceFile=/home/storm/${stormDir}/resources/hamlet.txt
+resourceFile=/home/storm/${stormDir}/resources/edgeList
 
 if [ -d "${toDir}" ] ; then
 	echo "removing files"
@@ -21,8 +25,8 @@ if [ -d "${toDir}" ] ; then
             ssh dell$j "mkdir -p '$stormDir'/logs/counter"
         done'
     
-	ssh -n storm@dell150.ilab.sztaki.hu "./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} storm.performance.WordCountTopology cluster /home/storm/${stormDir}/resources/hamlet.txt /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
-    ssh -n storm@dell150.ilab.sztaki.hu "sleep ${length}; $stormDir/bin/storm kill wordcountperformance -w 1"
+	ssh -n storm@dell150.ilab.sztaki.hu "./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} $classPath cluster $resourceFile /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
+    ssh -n storm@dell150.ilab.sztaki.hu "sleep ${length}; $stormDir/bin/storm kill performancetestertobekilled -w 1"
 
 	echo "job finished"
 

@@ -3,11 +3,11 @@ thisDir=$(dirname $0)
 thisDir=$(readlink -f "$thisDir")
 saveDir=/home/tofi/git/streaming-performance/src/test/resources/testdata
 javaDir="$thisDir"/../../../../target/
-stratoDir='flink-0.6-incubating-SNAPSHOT'
+stratoDir='flink-0.6-incubating-SNAPSHOT-streaming-new'
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
-classPath='org.apache.flink.streaming.performance.WordCountPerformanceLocal'
+classPath='org.apache.flink.streaming.performance.iterative.PageRankIterativeMain'
 
-argsArray=("24_2_8_16_16")  
+argsArray=("10_10")  
 
 mkdir -p $saveDir/$stratoDir
 

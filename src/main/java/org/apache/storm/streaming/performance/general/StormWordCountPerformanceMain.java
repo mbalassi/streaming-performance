@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.storm.streaming.performance;
+package org.apache.storm.streaming.performance.general;
 
 import java.io.File;
 import java.io.FileNotFoundException;

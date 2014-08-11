@@ -18,14 +18,67 @@
 
 package org.apache.flink.streaming.performance.iterative;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.function.sink.RichSinkFunction;
+import org.apache.flink.streaming.util.VertexStore;
 
 public class PageRankSink extends RichSinkFunction<Tuple3<Integer, Integer, Integer>> {
 	private static final long serialVersionUID = 1L;
+	private String logPath;
+	private PrintWriter output;
+	
+	private VertexStore vertexStore;
+	
+	private long lastWrite;
+	private boolean firstInvoke;
+	private int writeInterval;
+
+	public PageRankSink(String logPath_, int writeInterval_) {
+		this.logPath = logPath_;
+		this.writeInterval = writeInterval_;
+	}
+	
+	@Override
+	public void open(Configuration parameters) throws Exception {
+		vertexStore = new VertexStore();
+		firstInvoke = true;
+	}
 
 	@Override
 	public void invoke(Tuple3<Integer, Integer, Integer> tuple) {
-		System.out.println(tuple.toString());
+		if(firstInvoke) {
+			lastWrite = System.currentTimeMillis();
+			firstInvoke = false;
+		}
+		int vertex = tuple.f0;
+		int visits = tuple.f1;
+		vertexStore.setValue(vertex, visits);
+		
+		writeToLogIfNeeded();
+	}
+
+	private void writeToLogIfNeeded() {
+		long now = System.currentTimeMillis();
+		if(lastWrite + writeInterval < now) {
+			writeToLog();
+		}
+	}
+	
+	private void writeToLog() {
+		try {
+			output = new PrintWriter(new BufferedWriter(new FileWriter(logPath + "/visits.txt")));
+			output.print(vertexStore.toString());
+			output.close();
+			System.out.println("Logged pagerank");
+		} catch (IOException e) {
+			System.out.println("Log output file not found");
+		}
+		lastWrite = System.currentTimeMillis();
 	}
 }

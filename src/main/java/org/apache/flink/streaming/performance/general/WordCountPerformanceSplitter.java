@@ -17,41 +17,25 @@
  *
  */
 
-package org.apache.flink.streaming.performance;
+package org.apache.flink.streaming.performance.general;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.flink.api.java.functions.RichMapFunction;
+import org.apache.flink.api.java.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.util.Collector;
 
-public class WordCountPerformanceCounter extends RichMapFunction<Tuple1<String>, Tuple2<String, Integer>> {
+public class WordCountPerformanceSplitter extends RichFlatMapFunction<String, Tuple1<String>> {
+
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, Integer> wordCounts = new HashMap<String, Integer>();
-	private String word = "";
-	private Integer count = 0;
+	private Tuple1<String> outTuple = new Tuple1<String>();
 
-	private Tuple2<String, Integer> outTuple = new Tuple2<String, Integer>();
-	
-	// Increments the counter of the occurrence of the input word
 	@Override
-	public Tuple2<String, Integer> map(Tuple1<String> inTuple) throws Exception {
-		word = inTuple.f0;
+	public void flatMap(String inValue, Collector<Tuple1<String>> out) throws Exception {
 
-		if (wordCounts.containsKey(word)) {
-			count = wordCounts.get(word) + 1;
-			wordCounts.put(word, count);
-		} else {
-			count = 1;
-			wordCounts.put(word, 1);
+		for (String word : inValue.split(" ")) {
+			outTuple.f0 = word;
+			out.collect(outTuple);
 		}
-
-		outTuple.f0 = word;
-		outTuple.f1 = count;
-
-		return outTuple;
 	}
 
 }

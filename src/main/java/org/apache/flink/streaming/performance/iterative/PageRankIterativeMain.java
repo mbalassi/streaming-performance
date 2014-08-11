@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.datastream.IterativeDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.datastream.SplitDataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.performance.general.PerformanceCounterSink;
 
 public class PageRankIterativeMain {
 
@@ -35,7 +36,7 @@ public class PageRankIterativeMain {
 				
 				boolean runOnCluster = args[0].equals("cluster");
 				String edgeSourcePath = args[1];
-				String csvPath = args[2];
+				String logPath = args[2];
 				String jarPath = args[3];
 				
 				if (!(new File(edgeSourcePath)).exists()) {
@@ -57,22 +58,21 @@ public class PageRankIterativeMain {
 				env.setBufferTimeout(100);
 				
 				IterativeDataStream<Tuple3<Integer, Integer, Integer>> iterateBegin = env
-						.addSource(new EdgeSource(edgeSourcePath, crawlerSize, edgeAddRemoveSleep)).partitionBy(0)
-						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward().iterate();
+						.addSource(new EdgeSource(edgeSourcePath, crawlerSize, edgeAddRemoveSleep))
+							.setParallelism(1).partitionBy(0).iterate();
 
 				SingleOutputStreamOperator<Tuple3<Integer, Integer, Integer>, ?> iterateEnd = iterateBegin
-						.flatMap(new RandomCrawler(100000, 10000)).setParallelism(crawlerSize).partitionBy(0)
-						.map(new DummyForwarderMap()).setParallelism(crawlerSize).forward();
-				
-				iterateBegin.closeWith(iterateEnd);
+						.flatMap(new RandomCrawler(1000000, 10000)).setParallelism(crawlerSize).distribute();
 				
 				SplitDataStream<Tuple3<Integer, Integer, Integer>> splitDS = 
 						iterateEnd.split(new PageRankOutputSelector());
 				
+				iterateBegin.closeWith(splitDS.select("iterate"));
+				
 				splitDS.select("sink").addSink(
 						//new PerformanceCounterSink<Tuple3<Integer, Integer, Integer>>(args, csvPath){
-						//	private static final long serialVersionUID = 1L;});
-						new PageRankSink());
+						//	private static final long serialVersionUID = 1L;}).setParallelism(1);
+						new PageRankSink(logPath, 30 * 1000)).setParallelism(1);
 				
 				env.setExecutionParallelism(clusterSize);
 				env.execute();
@@ -88,6 +88,6 @@ public class PageRankIterativeMain {
 
 	private static void printUsage() {
 		System.out
-				.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path> <number of workers> <spout parallelism> <splitter parallelism> <counter parallelism> <sink parallelism>");
+				.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path> <number of workers> <crawler parallelism>");
 	}
 }

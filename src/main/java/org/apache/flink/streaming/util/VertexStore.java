@@ -51,4 +51,26 @@ public class VertexStore implements Serializable {
 		addVertex(vertex);
 		vertices.put(vertex, vertices.get(vertex) + 1);
 	}
+	
+	public long getTotalNumberOfVisits() {
+		long tnov = 0;
+		for(Integer vertex : vertices.keySet()) {
+			tnov += vertices.get(vertex);
+		}
+		return tnov;
+	}
+	
+	@Override
+	public String toString() {
+		long totalNumberOfVisits = getTotalNumberOfVisits();
+		StringBuilder sb = new StringBuilder();
+		for(Integer vertex : vertices.keySet()) {
+			sb.append(vertex);
+			sb.append(" ");
+			sb.append(((double)vertices.get(vertex)) / totalNumberOfVisits);
+			//sb.append(vertices.get(vertex));
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 }

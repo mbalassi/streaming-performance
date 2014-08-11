@@ -131,7 +131,7 @@ public class StreamingEdgeSpout extends BaseRichSpout {
 	}
 
 	private void sendOperation(String line) {
-		String[] words = line.split(" ");
+		String[] words = line.split(" |\\t");
 		Integer from = Integer.valueOf(words[0]);
 		Integer to = Integer.valueOf(words[1]);
 		Integer operation = Integer.valueOf(words[2]);

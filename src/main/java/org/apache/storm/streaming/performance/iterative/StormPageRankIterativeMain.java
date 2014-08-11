@@ -32,7 +32,7 @@ public class StormPageRankIterativeMain {
 
 				TopologyBuilder builder = new TopologyBuilder();
 				builder.setSpout("spout", new StreamingEdgeSpout(fileName, crawlerSize, edgeAddRemoveSleep), 1);
-				BoltDeclarer crawler = builder.setBolt("crawler", new StormRandomCrawler(100000, 100), crawlerSize);
+				BoltDeclarer crawler = builder.setBolt("crawler", new StormRandomCrawler(1000000, 100), crawlerSize);
 				BoltDeclarer sink = builder.setBolt("sink", new PageRankLoggerSinkBolt(args, csvPath), 1);
 
 				crawler.fieldsGrouping("spout", new Fields("v1"));
@@ -45,7 +45,7 @@ public class StormPageRankIterativeMain {
 				conf.setNumWorkers(numberOfWorkers);
 
 				if (runOnCluster) {
-					StormSubmitter.submitTopology("pagerankiterationperformance", conf, builder.createTopology());
+					StormSubmitter.submitTopology("performancetestertobekilled", conf, builder.createTopology());
 				} else {
 					// running locally for 70 seconds
 

@@ -5,6 +5,8 @@ length=$3
 stratoDir=$4
 jarFile=$5
 classPath=$6
+#resourceFile=/home/strato/${stratoDir}/resources/hamlet.txt
+resourceFile=/home/strato/${stratoDir}/resources/edgeList
 
 if [ -d "${toDir}" ] ; then
 	echo "removing files"
@@ -15,7 +17,7 @@ if [ -d "${toDir}" ] ; then
 	rm -r $toDir/$testParams/*;
 	mkdir $toDir/$testParams;
 
-	ssh -n strato@dell150.ilab.sztaki.hu "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster /home/strato/${stratoDir}/resources/hamlet.txt /home/strato/${stratoDir}/log/counter/ /home/strato/${stratoDir}/lib/${jarFile} ${paramsWithSpace}"
+	ssh -n strato@dell150.ilab.sztaki.hu "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster $resourceFile /home/strato/${stratoDir}/log/counter/ /home/strato/${stratoDir}/lib/${jarFile} ${paramsWithSpace}"
     ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 2; $stratoDir/bin/start-cluster.sh"
 
 	echo "job finished"

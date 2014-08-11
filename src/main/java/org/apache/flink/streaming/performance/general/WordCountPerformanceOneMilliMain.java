@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.flink.streaming.performance;
+package org.apache.flink.streaming.performance.general;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,8 +26,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountPerformanceForwardMain {
-
+public class WordCountPerformanceOneMilliMain {
 	public static void main(String[] args) {
 
 		if (args != null && args.length == 9) {
@@ -56,14 +55,18 @@ public class WordCountPerformanceForwardMain {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
+				int bufferTimeout = 1;
+				
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env
-						.readTextStream(sourcePath, sourceSize).forward()
-						.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
-							.partitionBy(0)
-						.map(new WordCountPerformanceCounter()).setParallelism(counterSize).forward()
-						.addSink(new WordCountPerformanceSink(args, csvPath));
-							//.setParallelism(sinkSize); //TODO
+						.readTextStream(sourcePath, sourceSize)
+							.setBufferTimeout(bufferTimeout)
+						.flatMap(new WordCountPerformanceSplitter())
+							.setParallelism(splitterSize).setBufferTimeout(bufferTimeout).partitionBy(0)
+						.map(new WordCountPerformanceCounter())
+							.setParallelism(counterSize).setBufferTimeout(bufferTimeout)
+						.addSink(new WordCountPerformanceSink(args, csvPath))
+							.setParallelism(sinkSize);
 				
 				env.setExecutionParallelism(clusterSize);
 				env.execute();

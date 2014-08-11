@@ -36,7 +36,7 @@ public class RandomCrawler extends RichFlatMapFunction<Tuple3<Integer, Integer, 
 	private VertexStore vertexStore;
 	private Random rnd;
 	
-	private int sendThreshold = 0;
+	private int sendIntervalThreshold = 0;
 	private int numOfCrawlers = 0;
 	private int iterationSinceLastSend = 0;
 	
@@ -44,8 +44,8 @@ public class RandomCrawler extends RichFlatMapFunction<Tuple3<Integer, Integer, 
 	
 	private int dummyNum = 0;
 	
-	public RandomCrawler(int sendThreshold_, int numOfCrawlers_) {
-		this.sendThreshold = sendThreshold_;
+	public RandomCrawler(int sendIntervalThreshold_, int numOfCrawlers_) {
+		this.sendIntervalThreshold = sendIntervalThreshold_;
 		this.numOfCrawlers = numOfCrawlers_;
 	}
 	
@@ -98,7 +98,7 @@ public class RandomCrawler extends RichFlatMapFunction<Tuple3<Integer, Integer, 
 
 	private void sendPageRankIfNeeded(
 			Collector<Tuple3<Integer, Integer, Integer>> out) {
-		if(iterationSinceLastSend > sendThreshold) {
+		if(iterationSinceLastSend > sendIntervalThreshold) {
 			sendPageRank(out);
 			iterationSinceLastSend = 0;
 		}

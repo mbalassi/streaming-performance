@@ -30,7 +30,7 @@ public class WordCountLatencyMain {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 10) {
+		if (args != null && args.length == 11) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String sourcePath = args[1];
@@ -46,7 +46,8 @@ public class WordCountLatencyMain {
 				int splitterSize = Integer.valueOf(args[6]);
 				int counterSize = Integer.valueOf(args[7]);
 				int sinkSize = Integer.valueOf(args[8]);
-				int intervalLength = Integer.valueOf(args[9]);
+				int bufferTimeOut = Integer.valueOf(args[9]);
+				int intervalLength = Integer.valueOf(args[10]);
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
@@ -57,7 +58,9 @@ public class WordCountLatencyMain {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
-				env.setBufferTimeout(1);
+				if(bufferTimeOut != 0) {
+					env.setBufferTimeout(bufferTimeOut);
+				}
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple3<String, Integer, Long>> dataStream = env
@@ -83,6 +86,7 @@ public class WordCountLatencyMain {
 	private static void printUsage() {
 		System.out.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path>"
 				+ " <number of workers> <spout parallelism> <splitter parallelism>"
-				+ " <counter parallelism> <sink parallelism>");
+				+ " <counter parallelism> <sink parallelism> <buffertimeout in milliseconds>"
+				+ " <interval length for the histogram>");
 	}
 }

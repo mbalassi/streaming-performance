@@ -101,6 +101,7 @@ public class LatencyTester {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 			out.print(histogram.toString());
 			out.close();
+			System.out.println("csv written");
 		} catch (IOException e) {
 			System.out.println("CSV output file not found");
 		}

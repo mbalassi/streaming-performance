@@ -26,7 +26,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountLatencyMain {
+public class WordCountLatencyForwardMain {
 
 	public static void main(String[] args) {
 
@@ -64,10 +64,10 @@ public class WordCountLatencyMain {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple3<String, Integer, Long>> dataStream = env
-						.addSource(new WordCountLatencySource(sourcePath), sourceSize).shuffle()
+						.addSource(new WordCountLatencySource(sourcePath), sourceSize).forward()
 						.flatMap(new WordCountLatencySplitter()).setParallelism(splitterSize)
 							.partitionBy(0)
-						.map(new WordCountLatencyCounter()).setParallelism(counterSize).shuffle()
+						.map(new WordCountLatencyCounter()).setParallelism(counterSize).forward()
 						.addSink(new WordCountLatencySink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				

@@ -1,10 +1,15 @@
 #!/bin/bash
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-flink-config.sh
+
 commands=$1
 
-ssh strato@dell150.ilab.sztaki.hu '
-	for j in {101..125} {127..142} 144 145;
+ssh $stratoUser@$stratoMaster '
+	for slave in '$stratoSlaves';
 	do
-		echo $j
-        ssh dell$j ' $commands '
+		echo $slave
+        ssh $slave ' $commands '
     done
 '

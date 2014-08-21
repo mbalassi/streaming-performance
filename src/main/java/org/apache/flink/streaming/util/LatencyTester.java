@@ -35,7 +35,7 @@ public class LatencyTester {
 	private State state;
 	
 	private long lastStateChange;
-	private long startingTime = 60 * 1000;
+	private long startingTime = 20 * 1000;
 	private long histogramTime = 30 * 1000;
 	
 	public LatencyTester(int intervalLength, String fileName) {

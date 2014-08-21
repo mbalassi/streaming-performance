@@ -13,7 +13,7 @@ import backtype.storm.tuple.Fields;
 public class StormPageRankIterativeMain {
 	public static void main(String[] args) throws Exception {
 
-		if (args != null && args.length == 5) {
+		if (args != null && args.length == 6) {
 			try {
 				//System.setOut(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
 				//System.setErr(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
@@ -21,13 +21,14 @@ public class StormPageRankIterativeMain {
 				boolean runOnCluster = args[0].equals("cluster");
 				String fileName = args[1];
 				String csvPath = args[2];
+				String topologyName = args[3];
 
 				if (!(new File(fileName)).exists()) {
 					throw new FileNotFoundException();
 				}
 
-				int numberOfWorkers = Integer.parseInt(args[3]);
-				int crawlerSize = Integer.parseInt(args[4]);
+				int numberOfWorkers = Integer.parseInt(args[4]);
+				int crawlerSize = Integer.parseInt(args[5]);
 				int edgeAddRemoveSleep = 100;
 
 				TopologyBuilder builder = new TopologyBuilder();
@@ -45,7 +46,7 @@ public class StormPageRankIterativeMain {
 				conf.setNumWorkers(numberOfWorkers);
 
 				if (runOnCluster) {
-					StormSubmitter.submitTopology("performancetestertobekilled", conf, builder.createTopology());
+					StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
 				} else {
 					// running locally for 70 seconds
 
@@ -69,7 +70,7 @@ public class StormPageRankIterativeMain {
 
 	private static void printUsage() {
 		System.out.println("USAGE:\n run <local/cluster> <performance counter path> "
-				+ "<source file> <number of workers> <spout parallelism> "
+				+ "<source file> <topology name> <number of workers> <spout parallelism> "
 				+ "<splitter parallelism> <counter parallelism> <sink parallelism>");
 	}
 }

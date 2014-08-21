@@ -5,7 +5,7 @@ compareDir=$1
 argArray=("$@")
 
 if [ $# -gt 4 ]; then
-    mkdir -p $compareDir
+    ${thisDir}/mkdir-rename-if-exists.sh $compareDir
     for i in ${!argArray[*]}; do
         arg=${argArray[$i]}
         if [ -d $arg ] & (($i % 2 )); then

@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.storm.streaming.performance.general;
+package org.apache.storm.streaming.performance.latency;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,11 +28,11 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
-public class StormWordCountPerformanceMain {
+public class StormWordCountLatencyMain {
 	
 	public static void main(String[] args) throws Exception {
 
-		if (args != null && args.length == 9) {
+		if (args != null && args.length == 10) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String fileName = args[1];
@@ -48,13 +48,15 @@ public class StormWordCountPerformanceMain {
 				int splitterParallelism = Integer.parseInt(args[6]);
 				int counterParallelism = Integer.parseInt(args[7]);
 				int sinkParallelism = Integer.parseInt(args[8]);
+				int intervalLength = Integer.valueOf(args[9]);
 
 				TopologyBuilder builder = new TopologyBuilder();
 				builder.setSpout("spout", new StreamingTextSpout(fileName), spoutParallelism);
 				builder.setBolt("split", new WordCountSplitterBolt(), splitterParallelism).shuffleGrouping("spout");
 				builder.setBolt("count", new WordCountCounterBolt(), counterParallelism).fieldsGrouping(
 						"split", new Fields("word"));
-				builder.setBolt("sink", new LoggerSinkBolt(args, counterPath), sinkParallelism).shuffleGrouping("count");
+				builder.setBolt("sink", new LoggerSinkBolt(args, counterPath, intervalLength), sinkParallelism)
+					.shuffleGrouping("count");
 
 				Config conf = new Config();
 				conf.setNumAckers(0);
@@ -69,7 +71,7 @@ public class StormWordCountPerformanceMain {
 					conf.setMaxTaskParallelism(3);
 					LocalCluster cluster = new LocalCluster();
 					cluster.submitTopology("word-count-performance", conf, builder.createTopology());
-					Thread.sleep(70000);
+					Thread.sleep(300 * 1000);
 
 					cluster.shutdown();
 				}
@@ -86,6 +88,8 @@ public class StormWordCountPerformanceMain {
 
 	private static void printUsage() {
 		System.out
-				.println("USAGE:\n run <local/cluster> <performance counter path> <source file> <topology name> <number of workers> <spout parallelism> <splitter parallelism> <counter parallelism> <sink parallelism>");
+				.println("USAGE:\n run <local/cluster> <performance counter path> <source file> <topology name>"
+						+ " <number of workers> <spout parallelism> <splitter parallelism>"
+						+ " <counter parallelism> <sink parallelism> <interval length for the histogram>");
 	}
 }

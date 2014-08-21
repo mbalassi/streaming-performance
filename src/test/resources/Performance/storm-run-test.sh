@@ -1,13 +1,16 @@
 #!/bin/bash
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-storm-config.sh
+
 toDir=$1
 testParams=$2
 length=$3
 stormDir=$4
-jarFile='streaming-performance-0.1-SNAPSHOT.jar'
-#classPath=storm.performance.WordCountTopology
-classPath=org.apache.storm.streaming.performance.iterative.StormPageRankIterativeMain
-#resourceFile=/home/storm/${stormDir}/resources/hamlet.txt
-resourceFile=/home/storm/${stormDir}/resources/edgeList
+jarFile=$5
+classPath=$6
+resourceFile=$7
 
 if [ -d "${toDir}" ] ; then
 	echo "removing files"
@@ -18,15 +21,19 @@ if [ -d "${toDir}" ] ; then
 	rm -r $toDir/$testParams/*;
 	mkdir $toDir/$testParams;
 
-    ssh -n storm@dell150.ilab.sztaki.hu '
-        mkdir -p '$stormDir'/logs/counter;
-        mkdir -p '$stormDir'/logs/all_tests/counter; 
-        for j in {101..125} {127..142} 144 145; do
-            ssh dell$j "mkdir -p '$stormDir'/logs/counter"
-        done'
+    ${thisDir}/storm-create-logging-folders.sh $stormDir
+    ${thisDir}/storm-deploy-resource-if-needed.sh $stormDir $resourceFile
+
+    resourceFileName="${resourceFile##*/}"
+    stormHomeFullPath=$(ssh -n $stormUser@$stormMaster "pwd $stormDir")
+    resourcePathOnCluster=$stormHomeFullPath/$stormDir/resources/$resourceFileName
+
+    className="${classPath##*.}"
+    topologyName=$className"-"$testParams"-"$RANDOM
     
-	ssh -n storm@dell150.ilab.sztaki.hu "./${stormDir}/bin/storm jar ./$stormDir/lib/${jarFile} $classPath cluster $resourceFile /home/storm/${stormDir}/logs/counter/ ${paramsWithSpace}"
-    ssh -n storm@dell150.ilab.sztaki.hu "sleep ${length}; $stormDir/bin/storm kill performancetestertobekilled -w 1"
+	ssh -n $stormUser@$stormMaster "${stormHomeFullPath}/${stormDir}/bin/storm jar ${stormHomeFullPath}/$stormDir/lib/${jarFile} $classPath cluster $resourcePathOnCluster ${stormHomeFullPath}/${stormDir}/logs/counter/ $topologyName ${paramsWithSpace}"
+    sleep ${length}
+    ssh -n $stormUser@$stormMaster "${stormHomeFullPath}/$stormDir/bin/storm kill $topologyName -w 1"
 
 	echo "job finished"
 
@@ -34,5 +41,5 @@ if [ -d "${toDir}" ] ; then
 	./storm-copy-files.sh $toDir/$testParams $stormDir
 else
 	echo "USAGE:"
-	echo "run <directory> <test params separated by _> <length of test in seconds> <storm directory>"
+	echo "run <save directory> <test params separated by _> <length of test in seconds> <storm directory> <jar file to run> <class to run (whole path)> <resource file path>"
 fi

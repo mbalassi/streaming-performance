@@ -2,6 +2,8 @@
 thisDir=$(dirname $0)
 thisDir=$(readlink -f "$thisDir")
 
+source $thisDir/load-flink-config.sh
+
 stratoDir='flink-0.6-incubating-SNAPSHOT'
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
 #classPath  ='org.apache.flink.streaming.performance.WordCountPerformanceLocal'
@@ -22,7 +24,7 @@ if [ "$#" -gt 5 ]; then
         if [ $arg = "-c" ]; then
             if [ $noclass = "true" ]; then
                 noclass="false"
-                ${thisDir}/strato-deploy-one.sh $jarPath $stratoDir
+                ${thisDir}/strato-deploy-jar.sh $jarPath $stratoDir
             fi
             classPath=${classesArray[$i + 1]}
             className="${classPath##*.}"

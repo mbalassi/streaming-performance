@@ -439,7 +439,7 @@ class OutputHandler:
         for l in classesCust:
             classPath = l[0]
             arg = l[1]
-            s += "-c " + classPath + " -a " + arg + " "
+            s += "-f " + classPath + " -a " + arg + " "
         return s
         
     def makeExistingResultArgs(self):

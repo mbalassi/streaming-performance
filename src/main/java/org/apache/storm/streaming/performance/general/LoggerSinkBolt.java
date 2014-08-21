@@ -40,8 +40,8 @@ public class LoggerSinkBolt extends BaseRichBolt {
 
 	public LoggerSinkBolt(String[] args, String counterPath) {
 		this.counterPath = counterPath;
-		this.argString = args[3];
-		for(int i = 4; i < args.length; i++){
+		this.argString = args[4];
+		for(int i = 5; i < args.length; i++){
 			argString += "_" + args[i];
 		}
 	}

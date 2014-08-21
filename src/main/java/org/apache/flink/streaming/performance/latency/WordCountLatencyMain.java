@@ -84,6 +84,7 @@ public class WordCountLatencyMain {
 	}
 
 	private static void printUsage() {
+		// local /home/tofi/git/streaming-performance/src/test/resources/testdata/hamlet.txt /home/tofi/git/streaming-performance/src/test/resources/testdata/ none 1 1 1 1 1 0 10
 		System.out.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path>"
 				+ " <number of workers> <spout parallelism> <splitter parallelism>"
 				+ " <counter parallelism> <sink parallelism> <buffertimeout in milliseconds>"

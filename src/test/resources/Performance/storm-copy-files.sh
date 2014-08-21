@@ -1,22 +1,27 @@
 #!/bin/bash
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-storm-config.sh
+
 toDir=$1
 stormDir=$2
 echo COPYING:
 if [ -d "${toDir}" ] ; then
-	ssh storm@dell150.ilab.sztaki.hu '
-	for j in {101..125} {127..142} 144 145;
+	ssh $stormUser@$stormMaster '
+	for slave in '$stormSlaves';
 	do
-		echo -n $j,
-		for i in $(ssh dell$j "ls '$stormDir'/logs/counter/");
-			do scp storm@dell$j:'$stormDir'/logs/counter/$i '$stormDir'/logs/all_tests/counter/$i;
-		done
-		for i in $(ls '$stormDir'/logs/counter/);
-			do cp '$stormDir'/logs/counter/$i '$stormDir'/logs/all_tests/counter/$i;
+		echo -n $slave,
+		for i in $(ssh $slave "ls '$stormDir'/logs/counter/");
+			do scp $slave:'$stormDir'/logs/counter/$i '$stormDir'/logs/all_tests/counter/$i;
 		done
 	done
+    for i in $(ls '$stormDir'/logs/counter/);
+		do cp '$stormDir'/logs/counter/$i '$stormDir'/logs/all_tests/counter/$i;
+	done
 	'
-	echo 150
-	scp storm@dell150.ilab.sztaki.hu:$stormDir/logs/all_tests/counter/* $toDir
+	echo $stormMaster
+	scp $stormUser@$stormMaster:$stormDir/logs/all_tests/counter/* $toDir
 else
 	echo "USAGE:"
 	echo "run <directory> <storm directory>"

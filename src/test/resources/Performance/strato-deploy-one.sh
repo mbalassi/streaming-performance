@@ -1,24 +1,30 @@
 #!/bin/bash
-jarPath=$1
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-flink-config.sh
+
+filePath=$1
 stratoDir=$2
-if [ "$#" = "2" ]; then
+directory=$3
+if [ "$#" = "3" ]; then
     
-    fileName="${jarPath##*/}"
-    ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 1"
+    fileName="${filePath##*/}"
+    ssh -n $stratoUser@$stratoMaster "$stratoDir/bin/stop-cluster.sh; sleep 1"
 
-    scp $jarPath strato@dell150.ilab.sztaki.hu:$stratoDir/lib/$fileName
+    scp $filePath $stratoUser@$stratoMaster:$stratoDir/$directory/$fileName
 
-    ssh strato@dell150.ilab.sztaki.hu '
-	for j in {101..125} {127..142} 144 145;
+    ssh $stratoUser@$stratoMaster '
+	for slave in '$stratoSlaves';
 	do
-		echo -n $j,
-		scp '$stratoDir'/lib/'$fileName' strato@dell$j:'$stratoDir'/lib/;
+		echo -n $slave,
+		scp '$stratoDir'/'$directory'/'$fileName' $slave:'$stratoDir'/'$directory'/;
 	done
 	'
         
-    ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/start-cluster.sh"
+    ssh -n $stratoUser@$stratoMaster "$stratoDir/bin/start-cluster.sh"
 
 else
 	echo "USAGE:"
-	echo "run <jar file> <strato directory>"
+	echo "run <file> <strato directory> <directory to deploy in>"
 fi

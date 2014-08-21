@@ -1,12 +1,16 @@
 #!/bin/bash
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-flink-config.sh
+
 toDir=$1
 testParams=$2
 length=$3
 stratoDir=$4
 jarFile=$5
 classPath=$6
-#resourceFile=/home/strato/${stratoDir}/resources/hamlet.txt
-resourceFile=/home/strato/${stratoDir}/resources/edgeList
+resourceFile=$7
 
 if [ -d "${toDir}" ] ; then
 	echo "removing files"
@@ -17,8 +21,14 @@ if [ -d "${toDir}" ] ; then
 	rm -r $toDir/$testParams/*;
 	mkdir $toDir/$testParams;
 
-	ssh -n strato@dell150.ilab.sztaki.hu "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster $resourceFile /home/strato/${stratoDir}/log/counter/ /home/strato/${stratoDir}/lib/${jarFile} ${paramsWithSpace}"
-    ssh -n strato@dell150.ilab.sztaki.hu "$stratoDir/bin/stop-cluster.sh; sleep 2; $stratoDir/bin/start-cluster.sh"
+    ${thisDir}/strato-create-logging-folders.sh $stratoDir
+    ${thisDir}/strato-deploy-resource-if-needed.sh $stratoDir $resourceFile
+
+    resourceFileName="${resourceFile##*/}"
+    resourcePathOnCluster=$stratoDir/resources/$resourceFileName
+
+	ssh -n $stratoUser@$stratoMaster "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster $resourcePathOnCluster ./${stratoDir}/log/counter/ ./${stratoDir}/lib/${jarFile} ${paramsWithSpace}"
+    ssh -n $stratoUser@$stratoMaster "./$stratoDir/bin/stop-cluster.sh; sleep 2; $stratoDir/bin/start-cluster.sh"
 
 	echo "job finished"
 
@@ -26,5 +36,5 @@ if [ -d "${toDir}" ] ; then
 	./strato-copy-files.sh $toDir/$testParams $stratoDir
 else
 	echo "USAGE:"
-	echo "run <save directory> <test params separated by _> <length of test in seconds> <strato directory> <jar file to run> <class to run (whole path)>"
+	echo "run <save directory> <test params separated by _> <length of test in seconds> <strato directory> <jar file to run> <class to run (whole path)> <resource file path>"
 fi

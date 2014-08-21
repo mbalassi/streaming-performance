@@ -1,14 +1,19 @@
 #!/bin/bash
+thisDir=$(dirname $0)
+thisDir=$(readlink -f "$thisDir")
+
+source $thisDir/load-flink-config.sh
+
 stratoDir=$1
 echo REMOVING:
-ssh strato@dell150.ilab.sztaki.hu '
-for j in {101..125} {127..142} 144 145;
+ssh $stratoUser@$stratoMaster '
+for slave in '$stratoSlaves';
 do
-	echo -n $j,
-   	$(ssh dell$j "rm '$stratoDir'/log/counter/*");
+	echo -n $slave,
+   	$(ssh $slave "rm '$stratoDir'/log/counter/*");
 done
 
-echo 150
+echo '$stratoMaster'
 rm '$stratoDir'/log/counter/*
 rm '$stratoDir'/log/all_tests/counter/*
 '

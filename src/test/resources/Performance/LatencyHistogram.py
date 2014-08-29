@@ -91,8 +91,8 @@ if __name__ == "__main__":
     save_dir = sys.argv[2]
     save_file_name = sys.argv[3]
     save = bool(sys.argv[4])
-    show = bool(sys.argv[5])
-    draw_histogram(csv_dir, save_dir, save_file_name, save, show)
+    show = bool(sys.argv[5]) # ez valahogy nem ment, szoval alapbol false-t adok
+    draw_histogram(csv_dir, save_dir, save_file_name, save, False)
  
 #csv_dir = "/home/tofi/git/streaming-performance/src/test/resources/testdata/autoperf-hadoop/results/WordCountLatencyMain/4_1_2_2_2_0_10/"
 #save_dir = csv_dir

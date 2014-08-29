@@ -106,6 +106,12 @@ Az elõzõ flink, storm és sparkon is futtat egy hasonló throughput tesztet, v
 
 ./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_3_20_20_10:80:../testdata/hamlet.txt -d ../testdata/autoperf/results/StormWordCountPerformanceMain/40_2_7_7_5 -d ../testdata/autoperf/results/SparkWordCountPerformanceMain/40_2_1_1_2_5
 
+======
+
+Egy latency test mind3-on:
+
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf latency -f org.apache.flink.streaming.performance.latency.WordCountLatencyMain:40_3_20_20_10:110:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.latency.StormWordCountLatencyMain:40_2_7_7_5:110:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.latency.SparkWordCountLatencyMain:40_2_1_1_2_5:110:../testdata/hamlet.txt
+
 
 ############################################
 

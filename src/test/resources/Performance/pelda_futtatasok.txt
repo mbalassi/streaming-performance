@@ -2,7 +2,7 @@ Fõscript:
 
 streaming-performance/src/test/resources/Performance mappából:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 hadoop_conf ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_2_3_0_10:140:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_2_3_0_10:140:../testdata/hamlet.txt
 
 ========
 

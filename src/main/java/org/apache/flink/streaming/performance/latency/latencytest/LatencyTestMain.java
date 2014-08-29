@@ -59,7 +59,7 @@ public class LatencyTestMain {
 				}
 				
 				if(bufferTimeOut != 0) {
-					env.setBufferTimeout(bufferTimeOut);
+					//env.setBufferTimeout(bufferTimeOut);
 				}
 				
 				@SuppressWarnings("unused")

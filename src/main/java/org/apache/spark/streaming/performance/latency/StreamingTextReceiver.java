@@ -70,7 +70,7 @@ class StreamingTextReceiver extends Receiver<Tuple2<String, Long>> {
 						br = new BufferedReader(new FileReader(path));
 						line = br.readLine();
 					}
-					long currentTime = System.nanoTime();
+					long currentTime = System.currentTimeMillis();
 					out = new Tuple2<String, Long>(line, currentTime);
 					store(out);
 				} catch (FileNotFoundException e) {

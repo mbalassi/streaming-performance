@@ -13,7 +13,7 @@ length=$8
 resource=$9
 
 if [ $deploy = "true" ]; then
-    ${thisDir}/spark-deploy-jar.sh $jarPath $sparkDir >>log 2>&1
+    ${thisDir}/spark-deploy-jar-if-needed.sh $jarPath $sparkDir >>log 2>&1
 fi
 className="${classPath##*.}"
 mkdir -p $saveDir/results/$className >>log 2>&1

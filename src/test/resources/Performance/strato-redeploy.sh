@@ -4,12 +4,13 @@ thisDir=$(readlink -f "$thisDir")
 
 source $thisDir/load-flink-config.sh
 
-stratoPath=$1
-dirOnCluster=$2
-additionalLibs=$@
+configFile=$1
+stratoPath=$2
+dirOnCluster=$3
 
-if [ "$#" = "2" ]; then
+if [ "$#" = "3" ]; then
     
+    ${thisDir}/switch-config.sh $configFile
     distributionPath=${stratoPath}/flink-dist/target/flink-dist-0.6-incubating-SNAPSHOT-bin/flink-0.6-incubating-SNAPSHOT
     coreJarPath=${stratoPath}/flink-addons/flink-streaming/flink-streaming-core/target
     connectorsJarPath=${stratoPath}/flink-addons/flink-streaming/flink-streaming-connectors/target
@@ -44,5 +45,5 @@ if [ "$#" = "2" ]; then
 
 else
 	echo "USAGE:"
-	echo "run <jar file> <strato directory>"
+	echo "run <config file> <strato root dir> <strato dir on cluster>"
 fi

@@ -54,14 +54,14 @@ public class WordCountLatencyMain {
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							host, port, clusterSize, // TODO ezt kiemelni parameternek
+							host, port, clusterSize,
 							jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
 				if(bufferTimeOut != 0) {
-					env.setBufferTimeout(bufferTimeOut);
+					//env.setBufferTimeout(bufferTimeOut);
 				}
 				
 				@SuppressWarnings("unused")

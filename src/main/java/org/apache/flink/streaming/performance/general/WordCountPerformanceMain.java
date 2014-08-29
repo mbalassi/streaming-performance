@@ -58,8 +58,6 @@ public class WordCountPerformanceMain {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
-				env.setBufferTimeout(10); //TODO delete
-				
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env
 						.readTextStream(sourcePath, sourceSize)

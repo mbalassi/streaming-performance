@@ -12,7 +12,7 @@ length=$7
 resource=$8
 
 if [ $deploy = "true" ]; then
-    ${thisDir}/strato-deploy-jar.sh $jarPath $stratoDir >>log 2>&1
+    ${thisDir}/strato-deploy-jar-if-needed.sh $jarPath $stratoDir >>log 2>&1
 fi
 className="${classPath##*.}"
 mkdir -p $saveDir/results/$className >>log 2>&1

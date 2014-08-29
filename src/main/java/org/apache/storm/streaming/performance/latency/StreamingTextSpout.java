@@ -66,7 +66,7 @@ public class StreamingTextSpout extends BaseRichSpout {
 				line = br.readLine();
 			}
 			outRecord.set(0, line);
-			outRecord.set(1, System.nanoTime());
+			outRecord.set(1, System.currentTimeMillis());
 			_collector.emit(outRecord);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

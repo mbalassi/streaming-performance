@@ -17,6 +17,11 @@ if [ -d "${toDir}" ] ; then
         if [ ! -z $file ]; then
             fileName="${file##*/}"
             newFileName=$(echo $fileName | awk '{split($0,a,"-"); print a[1]"-""'$testParams'""-"a[3]}')
+            echo KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+            echo $fileName
+            echo $newFileName
+            echo awk '{split($0,a,"-"); print a[1]"-""'$testParams'""-"a[3]}'
+            echo ssh $hadoopUser@$hadoopMaster ''$hadoopDir'/bin/hdfs dfs -getmerge '$file' '$tempDir'/'$newFileName''
             ssh $hadoopUser@$hadoopMaster ''$hadoopDir'/bin/hdfs dfs -getmerge '$file' '$tempDir'/'$newFileName''
         fi
     done

@@ -28,7 +28,7 @@ public class LatencyTester {
 	
 	private static enum State {STARTING, HISTOGRAM, PRINT};
 	
-	private String fileName;
+	protected String fileName;
 	
 	private HistogramMap histogram;
 	
@@ -95,10 +95,15 @@ public class LatencyTester {
 		return State.HISTOGRAM;
 	}
 	
+	@Override
+	public String toString() {
+		return histogram.toString();
+	}
+	
 	public void writeLog() {
 		try {
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
-			out.print(histogram.toString());
+			out.print(toString());
 			out.close();
 			System.out.println("csv written");
 		} catch (IOException e) {

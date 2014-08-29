@@ -57,7 +57,7 @@ public class LoggerSinkBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		long arrivalTime = System.nanoTime();
+		long arrivalTime = System.currentTimeMillis();
 		latencyTester.add(tuple.getLong(2), arrivalTime);
 	}
 

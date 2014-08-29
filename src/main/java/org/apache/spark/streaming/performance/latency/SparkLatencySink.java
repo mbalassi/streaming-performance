@@ -22,8 +22,7 @@ package org.apache.spark.streaming.performance.latency;
 import java.util.Random;
 
 import org.apache.flink.streaming.util.LatencyTester;
-import org.apache.flink.streaming.util.PerformanceCounter;
-import org.apache.flink.streaming.util.PerformanceCounterHDFS;
+import org.apache.flink.streaming.util.LatencyTesterHDFS;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
 
@@ -32,7 +31,6 @@ import scala.Tuple2;
 public class SparkLatencySink implements Function<JavaPairRDD<String, Tuple2<Long, Integer>>, Void> {
 	private static final long serialVersionUID = 1L;
 	
-	private PerformanceCounter performanceCounter;
 	private String csvPath;
 	private Integer intervalLength;
 	
@@ -43,19 +41,17 @@ public class SparkLatencySink implements Function<JavaPairRDD<String, Tuple2<Lon
 		intervalLength = intervalLength_;
 		Random rnd = new Random();
 		String filePath = csvPath + "sparkLatencySink-" + rnd.nextInt() + ".csv";
-//		if(runOnCluster) {
-//			this.performanceCounter = new PerformanceCounterHDFS("pc", 1000, 1000, 30000, filePath);
-//		} else {
-//			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, filePath);
-//		}
-		latencyTester = new LatencyTester(intervalLength, filePath);
+		if(runOnCluster) {
+			this.latencyTester = new LatencyTesterHDFS(intervalLength, filePath);
+		} else {
+			this.latencyTester = new LatencyTester(intervalLength, filePath);
+		}
 	}
 	
 	@Override
 	public Void call(JavaPairRDD<String, Tuple2<Long, Integer>> v1) throws Exception {
 		for(Tuple2<String, Tuple2<Long, Integer>> tup : v1.collect()) {
-			//performanceCounter.count(tup._2._2);
-			long arrivalTime = System.nanoTime();
+			long arrivalTime = System.currentTimeMillis();
 			latencyTester.add(tup._2._1, arrivalTime);
 		}
 		return null;

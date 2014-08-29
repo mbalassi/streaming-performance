@@ -12,7 +12,7 @@ length=$7
 resource=$8
 
 if [ $deploy = "true" ]; then
-    ${thisDir}/storm-deploy-jar.sh $jarPath $stormDir >>log 2>&1
+    ${thisDir}/storm-deploy-jar-if-needed.sh $jarPath $stormDir >>log 2>&1
 fi
 className="${classPath##*.}"
 mkdir -p $saveDir/results/$className >>log 2>&1

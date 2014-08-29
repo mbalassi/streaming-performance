@@ -16,7 +16,7 @@ if [ -d "${toDir}" ] ; then
         file=$(echo $out | grep .csv)
         if [ ! -z $file ]; then
             fileName="${file##*/}"
-            newFileName=$(echo $fileName | awk '{split($0,a,"-"); print a[1]"-""'$testParams'""-"a[2]}')
+            newFileName=$(echo $fileName | awk '{split($0,a,"-"); print a[1]"-""'$testParams'""-"a[3]}')
             ssh $hadoopUser@$hadoopMaster ''$hadoopDir'/bin/hdfs dfs -getmerge '$file' '$tempDir'/'$newFileName''
         fi
     done

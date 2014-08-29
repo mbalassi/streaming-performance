@@ -31,7 +31,7 @@ Részletesebben a script argumentumai:
 
 ========
 
-Storm és Sparkos futtatás se különbözne az elõbb leírtaktól, strom-ot a -s jelzi, spark-ot a -p
+Storm és Sparkos futtatás se különbözne az elõbb leírtaktól, strom-ot a -s jelzi, spark-ot a -p, -d egy létezõ mappában levõ eredményt használ
 
 ========
 
@@ -84,15 +84,27 @@ A spark mûködése nagyban eltér az elõzõ kettõtõl, nagyrészt azért, mer
 2. csv file mentési mappája --- automatikusan állítja a script a configból szedett hdfs save dirre ### VESZÉLY ### ezt a mappát manuálisan létre kell hozni, és a biztonság kedvéért legjobb ha mindenkinek adunk jogosultságot a módosítására, innen egy ideiglenes mappába menti a file-okat a script, majd innen scp-zi át a lokális gépre
 3. timeout (mennyi ideig fut a teszt) --- automatikusan állítja a scipt arra amit megadtunk a futtatási beállításoknál (azért van így, hogy egységes legyen az argumentumok megadása a flink és stormmal)
 ### Innentõl jönnek a beállítható argumentumok, a fenti argumentumokat minden osztálynak szolgáltatnia kell amit használni akarunk a fõscripttel ###
+4. number of executors --- no comment
+5. executor cores --- no comment
+6. driver memory in gb --- no comment
+7. executore memory in gb --- no comment
 ### Ezek az argumentumok a SparkWordCountPerformanceMain-re vonatkoznak, a többi main-nek eltérhetnek az argumentumai ###
-4. parralelism --- no comment
-5. source num --- a source-ok száma
+8. parralelism --- no comment
+9. source num --- a source-ok száma
 
 =================
 
 Példák még futtatásokra:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 hadoop_conf ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_10_20_20_10:320:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.general.StormWordCountPerformanceMain:70_4_10_20_10:320:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.general.SparkWordCountPerformanceMain:10_5:320:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_10_20_20_10:80:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.general.StormWordCountPerformanceMain:40_2_7_7_5:80:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.general.SparkWordCountPerformanceMain:40_2_1_1_2_5:80:../testdata/hamlet.txt
+
+======
+
+Az elõzõ flink, storm és sparkon is futtat egy hasonló throughput tesztet, viszont a flink-en nagy valószínûséggel failel (ha nincs még javítva). Ezért a következõ kóddal újrafuttathatjuk a flink-et és a már létezõ eredményeinkkel storm és spark-ból összehasoníthatjuk. A spark-ból szinte biztos hogy ennyi idõ alatt nem jön ki semmi értelmes, így ha a futásidõt mindenhol 80-ról 320-ra vesszük akkor spark-ot is kapnánk.
+
+======
+
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_3_20_20_10:80:../testdata/hamlet.txt -d /home/tofi/git/streaming-performance/src/test/resources/testdata/autoperf/results/StormWordCountPerformanceMain/40_2_7_7_5 -d /home/tofi/git/streaming-performance/src/test/resources/testdata/autoperf/results/SparkWordCountPerformanceMain/40_2_1_1_2_5
 
 
 ############################################

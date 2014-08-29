@@ -23,13 +23,12 @@ import org.apache.flink.streaming.api.datastream.IterativeDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.datastream.SplitDataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.performance.general.PerformanceCounterSink;
 
 public class PageRankIterativeMain {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 6) {
+		if (args != null && args.length == 8) {
 			try {
 				//System.setOut(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
 				//System.setErr(new PrintStream("/home/tofi/git/streaming-performance/src/test/resources/Performance/graphgenerator/out"));
@@ -38,19 +37,21 @@ public class PageRankIterativeMain {
 				String edgeSourcePath = args[1];
 				String logPath = args[2];
 				String jarPath = args[3];
+				String host = args[4];
+				int port = Integer.valueOf(args[5]);
 				
 				if (!(new File(edgeSourcePath)).exists()) {
 					throw new FileNotFoundException();
 				}
 		
-				int clusterSize = Integer.valueOf(args[4]);
-				int crawlerSize = Integer.valueOf(args[5]);
+				int clusterSize = Integer.valueOf(args[6]);
+				int crawlerSize = Integer.valueOf(args[7]);
 				int edgeAddRemoveSleep = 100;
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							"10.1.3.150", 6123, clusterSize, jarPath);
+							host, port, clusterSize, jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}

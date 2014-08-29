@@ -37,8 +37,8 @@ public class WordCountPerformanceSink implements SinkFunction<Tuple2<String, Int
 	
 	public WordCountPerformanceSink(String[] args, String csvPath_){
 		csvPath = csvPath_;
-		argString = args[4];
-		for(int i = 5; i < args.length; i++){
+		argString = args[6];
+		for(int i = 7; i < args.length; i++){
 			argString += "_" + args[i];
 		}
 	}

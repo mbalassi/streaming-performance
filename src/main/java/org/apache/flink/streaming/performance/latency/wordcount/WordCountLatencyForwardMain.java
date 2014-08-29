@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.flink.streaming.performance.latency;
+package org.apache.flink.streaming.performance.latency.wordcount;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,33 +26,35 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountLatencyMain {
+public class WordCountLatencyForwardMain {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 11) {
+		if (args != null && args.length == 13) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String sourcePath = args[1];
 				String csvPath = args[2];
 				String jarPath = args[3];
+				String host = args[4];
+				int port = Integer.valueOf(args[5]);
 				
 				if (!(new File(sourcePath)).exists()) {
 					throw new FileNotFoundException();
 				}
 		
-				int clusterSize = Integer.valueOf(args[4]);
-				int sourceSize = Integer.valueOf(args[5]);
-				int splitterSize = Integer.valueOf(args[6]);
-				int counterSize = Integer.valueOf(args[7]);
-				int sinkSize = Integer.valueOf(args[8]);
-				int bufferTimeOut = Integer.valueOf(args[9]);
-				int intervalLength = Integer.valueOf(args[10]);
+				int clusterSize = Integer.valueOf(args[6]);
+				int sourceSize = Integer.valueOf(args[7]);
+				int splitterSize = Integer.valueOf(args[8]);
+				int counterSize = Integer.valueOf(args[9]);
+				int sinkSize = Integer.valueOf(args[10]);
+				int bufferTimeOut = Integer.valueOf(args[11]);
+				int intervalLength = Integer.valueOf(args[12]);
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							"10.1.3.150", 6123, clusterSize, 
+							host, port, clusterSize, 
 							jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
@@ -64,10 +66,10 @@ public class WordCountLatencyMain {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple3<String, Integer, Long>> dataStream = env
-						.addSource(new WordCountLatencySource(sourcePath), sourceSize).shuffle()
+						.addSource(new WordCountLatencySource(sourcePath), sourceSize).forward()
 						.flatMap(new WordCountLatencySplitter()).setParallelism(splitterSize)
 							.partitionBy(0)
-						.map(new WordCountLatencyCounter()).setParallelism(counterSize).shuffle()
+						.map(new WordCountLatencyCounter()).setParallelism(counterSize).forward()
 						.addSink(new WordCountLatencySink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				
@@ -84,7 +86,6 @@ public class WordCountLatencyMain {
 	}
 
 	private static void printUsage() {
-		// local /home/tofi/git/streaming-performance/src/test/resources/testdata/hamlet.txt /home/tofi/git/streaming-performance/src/test/resources/testdata/ none 1 1 1 1 1 0 10
 		System.out.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path>"
 				+ " <number of workers> <spout parallelism> <splitter parallelism>"
 				+ " <counter parallelism> <sink parallelism> <buffertimeout in milliseconds>"

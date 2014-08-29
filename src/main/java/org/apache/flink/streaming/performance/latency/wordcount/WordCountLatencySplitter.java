@@ -17,39 +17,25 @@
  *
  */
 
-package org.apache.flink.streaming.performance.latency;
+package org.apache.flink.streaming.performance.latency.wordcount;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
+import org.apache.flink.api.java.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.function.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 
-public class WordCountLatencySource extends RichSourceFunction<Tuple2<String, Long>>{
+public class WordCountLatencySplitter extends RichFlatMapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
+
 	private static final long serialVersionUID = 1L;
 
-	private final String path;
-	private Tuple2<String, Long> outValue = new Tuple2<String, Long>();
-
-	public WordCountLatencySource(String path) {
-		this.path = path;
-	}
+	private Tuple2<String, Long> outTuple = new Tuple2<String, Long>();
 
 	@Override
-	public void invoke(Collector<Tuple2<String, Long>> collector) throws IOException {
-		while (true) {
-			BufferedReader br = new BufferedReader(new FileReader(path));
-			outValue.f0 = br.readLine();
-			while (outValue.f0 != null) {
-				if (outValue.f0 != "") {
-					outValue.f1 = System.nanoTime();
-					collector.collect(outValue);
-				}
-				outValue.f0 = br.readLine();
-			}
-			br.close();
+	public void flatMap(Tuple2<String, Long> inValue, Collector<Tuple2<String, Long>> out) throws Exception {
+
+		for (String word : inValue.f0.split(" ")) {
+			outTuple.f0 = word;
+			outTuple.f1 = inValue.f1;
+			out.collect(outTuple);
 		}
 	}
 }

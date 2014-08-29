@@ -171,51 +171,55 @@ def csvJoin(csv_dir, sname = ''):
         firstLine = fObjList[-1].readline()
         
     newFile = open(csv_dir + "/" + newFileName, "wt")    
-    newFile.write(firstLine)    
+    newFile.write(firstLine)
     
-    currentInterval = 0
-    first = True
-    stop = False
-    while True:
-        lines = []
-        for fObj in fObjList:
-            line = fObj.readline()
-            if line == "":
-                stop = True
-                break
-            else:
-                lines.append(line)
+    if len(fObjList) == 1:
+        fObj = fObjList[0]
+        for line in fObj:
+            newFile.write(line)
+    else:
+        currentInterval = 0
+        first = True
+        stop = False
+        while True:
+            lines = []
+            for fObj in fObjList:
+                line = fObj.readline()
+                if line == "":
+                    stop = True
+                    break
+                else:
+                    lines.append(line)
+                    
+            if stop:
+                break        
+            
+            if first:
+                intervalDiff = findInterval(int(lines[0].split(',')[0]))
+                first = False
+            
+            label = ""
+            valuePairs = []
+            for line in lines:
+                l = line.split(',')
+                time = int(l[0])
+                counter = int(l[1])
+                label = l[2]
+                valuePairs.append((time, counter))
+            
+            newCounter = 0
+            for pair in valuePairs:
+                newCounter += pair[1]
                 
-        if stop:
-            break        
-        
-        if first:
-            intervalDiff = findInterval(int(lines[0].split(',')[0]))
-            first = False
-        
-        label = ""
-        valuePairs = []
-        for line in lines:
-            l = line.split(',')
-            time = int(l[0])
-            counter = int(l[1])
-            label = l[2]
-            valuePairs.append((time, counter))
-        
-        newCounter = 0
-        for pair in valuePairs:
-            newCounter += pair[1]
-            
-        newLine = ""
-        newLine += str(currentInterval)
-        newLine += ","
-        newLine += str(newCounter)
-        newLine += ","
-        newLine += label
-        newFile.write(newLine)
-            
-        currentInterval += intervalDiff
-        
+            newLine = ""
+            newLine += str(currentInterval)
+            newLine += ","
+            newLine += str(newCounter)
+            newLine += ","
+            newLine += label
+            newFile.write(newLine)
+                
+            currentInterval += intervalDiff
         
     for fObj in fObjList:
         fObj.close()
@@ -225,7 +229,7 @@ def joinAndPlotAll(csv_dir, smooth, save_dir):
     fnameList = []
     for fname in os.listdir(csv_dir):
         if '.csv' in fname:
-            fnameList.append(fname)   
+            fnameList.append(fname)
     
     argsList = []
     for fname in fnameList:

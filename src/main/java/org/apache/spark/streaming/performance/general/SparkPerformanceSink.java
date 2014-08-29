@@ -17,49 +17,39 @@
  *
  */
 
-package org.apache.flink.streaming.performance.general;
+package org.apache.spark.streaming.performance.general;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Random;
 
-import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
+import org.apache.flink.streaming.util.PerformanceCounterHDFS;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.Function;
 
-public class PerformanceCounterSink<IN> implements SinkFunction<IN>  {
+import scala.Tuple2;
+
+public class SparkPerformanceSink implements Function<JavaPairRDD<String, Integer>, Void> {
 	private static final long serialVersionUID = 1L;
 	
-	private PerformanceCounter pCounter;
-	private String argString;
+	private PerformanceCounter performanceCounter;
 	private String csvPath;
 	
-	public PerformanceCounterSink(String[] args, String csvPath_) {
+	public SparkPerformanceSink(boolean runOnCluster, String csvPath_){
 		csvPath = csvPath_;
-		argString = args[6];
-		for(int i = 7; i < args.length; i++){
-			argString += "_" + args[i];
+		Random rnd = new Random();
+		String filePath = csvPath + "sparkSink-" + rnd.nextInt() + ".csv";
+		if(runOnCluster) {
+			this.performanceCounter = new PerformanceCounterHDFS("pc", 1000, 1000, 30000, filePath);
+		} else {
+			this.performanceCounter = new PerformanceCounter("pc", 1000, 1000, 30000, filePath);
 		}
 	}
 	
-	
 	@Override
-	public void invoke(IN tuple) {
-		pCounter.count();
-	}
-
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		ois.defaultReadObject();
-		
-		Random rnd = new Random();
-		String fileName;
-		File csvFile;
-		do {
-			fileName = csvPath + "sink-" + argString + 
-					"-" + String.valueOf(rnd.nextInt(10000000)) + ".csv";
-			csvFile = new File(fileName);
-		} while(csvFile.exists());
-		
-		pCounter = new PerformanceCounter("SplitterEmitCounter", 1000, 1000, 30000, fileName);
+	public Void call(JavaPairRDD<String, Integer> v1) throws Exception {
+		for(Tuple2<String, Integer> tup : v1.collect()) {
+			performanceCounter.count(tup._2);
+		}
+		return null;
 	}
 }

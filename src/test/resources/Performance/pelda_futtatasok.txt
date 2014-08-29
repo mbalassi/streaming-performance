@@ -1,0 +1,100 @@
+Fõscript:
+
+streaming-performance/src/test/resources/Performance mappából:
+
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 hadoop_conf ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_2_3_0_10:140:../testdata/hamlet.txt
+
+========
+
+Elindítja a hadoopon a következõ futtatásokat:
+LatencyTestMain 3 3 3 0 10 argumentumokkal 140 másodpercig fut bemenete a hamlet.txt
+LatencyTestMain 3 2 3 0 10 argumentumokkal 140 másodpercig fut bemenete a hamlet.txt
+
+========
+
+Részletesebben a script argumentumai:
+1. flink-0.6-incubating-SNAPSHOT-streaming-new --- a flink distribúció mappája a clusteren
+2. storm-dist --- a storm distribúció mappája a clusteren
+3. spark-1.0.2-bin-hadoop2 --- a spark distribúció mappája a clusteren
+4. hadoop-2.2.0 --- a hadoop distribúció mappája a clusteren, spark-hoz hdfs file mozgatások miatt kell
+5. hadoop_conf --- config file amivel futtatni akarunk, ezzel lehet szabályozni, hogy melyik clusteren futtat
+6. ../../../../target/streaming-performance-0.1-SNAPSHOT.jar --- a jar file amit használni fog a futtatásokhoz, automatikusan felmásolja a clusteren a megfelelõ mappákba, a script futtatása során minden disztribúcióra csak egyszer másol (elsõ futtatás elõtt)
+7. ../testdata/autoperf-hadoop --- a mappa amibe menteni fogja az eredményeket
+8. latency --- melyik grafikon készítõt használja, jelenleg latency és throughput-ot ismer
+9. -f --- jelezzük, hogy flink futtatás következik
+10. org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt --- ez egy futtatásnak a beállításai, szétszedve darabokra:
+10.1. org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain --- az osztály elérési útvonala a jar file-ban amit futtatni akarunk
+10.2. 3_3_3_0_10 --- a program argumentumai alulvonással elválasztva, errõl késõbb részletesebben lesz leírás
+10.3. 140 --- futásidõ másodpercekben
+10.4. ../testdata/hamlet.txt --- a resource file amit használni akarunk (lokális elérés, ezt feltölti a script a disztribúció/resources mappába)
+11. -f --- egy újabb flink futtatás és így tovább, akárhány futtatás fûzhetõ a végére...
+
+========
+
+Storm és Sparkos futtatás se különbözne az elõbb leírtaktól, strom-ot a -s jelzi, spark-ot a -p
+
+========
+
+A main-ek argumentumairól:
+
+Ezek különböznek a különbözõ disztribúcióknál, van ahol nagyon hasonló a kettõ mégis különbözik, ezt és a könnyebben elõidézhetõ hibákat jelöltem ### VESZÉLY ###-el :)
+
+========
+
+Flink:
+0. futtatási mód: cluster / local --- ezt automatikusan clusterre állítja a script, hisz clusteren futtatáshoz van
+1. resource file elérési útvonala --- ezt is automatikusan állítja a script a disztibúció/resources mappára
+2. csv file mentési mappája --- automatikusan állítja a script a disztribúció/log/counter mappára ### VESZÉLY ### elméletileg automatikusan létrehozza a script ezeket a mappákat, de azért érdemes legalább egyszer leellenõrizni, ha nem kapunk semmi eredményt a futtatásból
+3. jar file elérési útvonala --- automatikusan állítja a script a disztribúció/lib/jarfileneve stringre, ahol a jarfilenevét a fõscript 6. argumentumából veszi
+4. host --- automatikusan állítja a script a config file-ból, a flink masterre
+5. port --- automatikusan állítja a script a config file-ból, a flink master rcp portra
+### Innentõl jönnek a beállítható argumentumok, a fenti argumentumokat minden osztálynak szolgáltatnia kell amit használni akarunk a fõscripttel ###
+### Ezek az argumentumok a LatencyTestMain-re vonatkoznak, a többi main-nek eltérhetnek az argumentumai ###
+6. cluster size --- úgy vettem észre, hogy csak szemfényvesztés
+7. source size --- hány source-t indítson el
+8. sink size --- hány sink-et indítson el
+9. buffer timeout --- buffertimeout mennyi legyen, ha 0 akkor nem állítja hagyja defaulton
+10. interval length --- mekkorának vegye az intervallumokat a histogram
+
+======
+
+Storm:
+
+0. futtatási mód: cluster / local --- ezt automatikusan clusterre állítja a script, hisz clusteren futtatáshoz van
+1. resource file elérési útvonala --- ezt is automatikusan állítja a script a disztibúció/resources mappára
+2. csv file mentési mappája --- automatikusan állítja a script a disztribúció/logs/counter mappára ### VESZÉLY ### elméletileg automatikusan létrehozza a script ezeket a mappákat, de azért érdemes legalább egyszer leellenõrizni, ha nem kapunk semmi eredményt a futtatásból ### VESZÉLY ### a storm a logs mappába menti, flink a log mappába
+3. topology neve --- automatikusan állítja a következõre <osztály neve>-<arumentumok 4.-tõl>-<random szám> ezt a nevet használja a job lelövésére, ha nem állna le a job, ezzel lesz a gond
+### Innentõl jönnek a beállítható argumentumok, a fenti argumentumokat minden osztálynak szolgáltatnia kell amit használni akarunk a fõscripttel ###
+### Ezek az argumentumok a StormWordCountLatencyMain-re vonatkoznak, a többi main-nek eltérhetnek az argumentumai ###
+4. number of workers --- no comment
+5. spout parallelism --- hány spout (source) legyen indítva
+6. splitter parallelism --- hány splitter legyen indítva
+7. counter parallelism --- hány counter legyen indítva
+8. sink parallelism --- hány sink legyen indítva
+9. interval length --- mekkorának vegye az intervallumokat a histogram
+
+======
+
+Spark:
+
+A spark mûködése nagyban eltér az elõzõ kettõtõl, nagyrészt azért, mert hdfs-re menti a log file-okat így ezeknek a mozgatása bonyolultabban van megoldva, alábbi pontokban részletesebben
+
+0. futtatási mód: cluster / local --- ezt automatikusan clusterre állítja a script, hisz clusteren futtatáshoz van
+1. resource file elérési útvonala --- ezt is automatikusan állítja a script a resources mappára (igen ez a spark home-ján belül a resource mappa) ### VESZÉLY ### létre kell hozni manuálisan, nem hozza létre automatikusan
+2. csv file mentési mappája --- automatikusan állítja a script a configból szedett hdfs save dirre ### VESZÉLY ### ezt a mappát manuálisan létre kell hozni, és a biztonság kedvéért legjobb ha mindenkinek adunk jogosultságot a módosítására, innen egy ideiglenes mappába menti a file-okat a script, majd innen scp-zi át a lokális gépre
+3. timeout (mennyi ideig fut a teszt) --- automatikusan állítja a scipt arra amit megadtunk a futtatási beállításoknál (azért van így, hogy egységes legyen az argumentumok megadása a flink és stormmal)
+### Innentõl jönnek a beállítható argumentumok, a fenti argumentumokat minden osztálynak szolgáltatnia kell amit használni akarunk a fõscripttel ###
+### Ezek az argumentumok a SparkWordCountPerformanceMain-re vonatkoznak, a többi main-nek eltérhetnek az argumentumai ###
+4. parralelism --- no comment
+5. source num --- a source-ok száma
+
+=================
+
+Példák még futtatásokra:
+
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 hadoop_conf ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_10_20_20_10:320:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.general.StormWordCountPerformanceMain:70_4_10_20_10:320:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.general.SparkWordCountPerformanceMain:10_5:320:../testdata/hamlet.txt
+
+
+############################################
+
+

@@ -24,14 +24,14 @@ import java.util.Map;
 
 public class HistogramMap {
 
-	private Map<Integer, Integer> records;
+	private Map<Integer, Long> records;
 	private long maxFound;
 	private long intervalLength;
 	
 	public HistogramMap(int intervalLength) {
 		this.intervalLength = intervalLength;
 		
-		this.records = new HashMap<Integer, Integer>();
+		this.records = new HashMap<Integer, Long>();
 		
 		this.maxFound = Long.MIN_VALUE;
 	}
@@ -49,12 +49,12 @@ public class HistogramMap {
 	
 	private void initializeIntervalIfNeeded(int index) {
 		if(!records.containsKey(index)) {
-			records.put(index, 0);
+			records.put(index, 0L);
 		}
 	}
 
 	private void increase(int index) {
-		int value = records.get(index);
+		long value = records.get(index);
 		records.put(index, value + 1);
 	}
 	

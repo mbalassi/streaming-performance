@@ -17,25 +17,17 @@
  *
  */
 
-package org.apache.flink.streaming.performance.latency;
+package org.apache.spark.streaming.performance.general;
 
-import org.apache.flink.api.java.functions.RichFlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.util.Collector;
+import org.apache.spark.api.java.function.PairFunction;
 
-public class WordCountLatencySplitter extends RichFlatMapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
+import scala.Tuple2;
 
+public class SparkWordCountPairer implements PairFunction<String, String, Integer> {
 	private static final long serialVersionUID = 1L;
 
-	private Tuple2<String, Long> outTuple = new Tuple2<String, Long>();
-
 	@Override
-	public void flatMap(Tuple2<String, Long> inValue, Collector<Tuple2<String, Long>> out) throws Exception {
-
-		for (String word : inValue.f0.split(" ")) {
-			outTuple.f0 = word;
-			outTuple.f1 = inValue.f1;
-			out.collect(outTuple);
-		}
+	public Tuple2<String, Integer> call(String s) {
+		return new Tuple2<String, Integer>(s, 1);
 	}
 }

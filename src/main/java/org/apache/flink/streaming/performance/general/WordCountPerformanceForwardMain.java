@@ -30,27 +30,29 @@ public class WordCountPerformanceForwardMain {
 
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 9) {
+		if (args != null && args.length == 11) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String sourcePath = args[1];
 				String csvPath = args[2];
 				String jarPath = args[3];
+				String host = args[4];
+				int port = Integer.valueOf(args[5]);
 				
 				if (!(new File(sourcePath)).exists()) {
 					throw new FileNotFoundException();
 				}
 		
-				int clusterSize = Integer.valueOf(args[4]);
-				int sourceSize = Integer.valueOf(args[5]);
-				int splitterSize = Integer.valueOf(args[6]);
-				int counterSize = Integer.valueOf(args[7]);
-				int sinkSize = Integer.valueOf(args[8]);
+				int clusterSize = Integer.valueOf(args[6]);
+				int sourceSize = Integer.valueOf(args[7]);
+				int splitterSize = Integer.valueOf(args[8]);
+				int counterSize = Integer.valueOf(args[9]);
+				int sinkSize = Integer.valueOf(args[10]);
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							"10.1.3.150", 6123, clusterSize, 
+							host, port, clusterSize, 
 							jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);

@@ -48,7 +48,6 @@ public class LatencyTester {
 	
 	public void add(long sendTime, long arrivalTime) {
 		long diff = arrivalTime - sendTime;
-		diff = diff / 1000000L;
 		
 		switch(state) {
 		case STARTING:

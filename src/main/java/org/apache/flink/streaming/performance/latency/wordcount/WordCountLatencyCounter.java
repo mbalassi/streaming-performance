@@ -17,7 +17,7 @@
  *
  */
 
-package org.apache.flink.streaming.performance.latency;
+package org.apache.flink.streaming.performance.latency.wordcount;
 
 import java.util.HashMap;
 import java.util.Map;

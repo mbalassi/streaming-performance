@@ -16,5 +16,19 @@ if [ $# = 1 ]; then
         sed -n '5{p;q}' ${thisDir}/config
     elif [ $arg = "strato-slaves" ]; then
         sed -n '6{p;q}' ${thisDir}/config
+    elif [ $arg = "strato-master-rcp-port" ]; then
+        sed -n '7{p;q}' ${thisDir}/config
+    elif [ $arg = "hadoop-user" ]; then
+        sed -n '8{p;q}' ${thisDir}/config
+    elif [ $arg = "hadoop-master" ]; then
+        sed -n '9{p;q}' ${thisDir}/config
+    elif [ $arg = "hadoop-hdfssavedir" ]; then
+        sed -n '10{p;q}' ${thisDir}/config
+    elif [ $arg = "spark-user" ]; then
+        sed -n '11{p;q}' ${thisDir}/config
+    elif [ $arg = "spark-master" ]; then
+        sed -n '12{p;q}' ${thisDir}/config
+    elif [ $arg = "spark-slaves" ]; then
+        sed -n '13{p;q}' ${thisDir}/config
     fi
 fi

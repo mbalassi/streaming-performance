@@ -17,49 +17,56 @@
  *
  */
 
-package org.apache.flink.streaming.performance.general;
+package org.apache.flink.streaming.performance.latency.wordcount;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Random;
 
-import org.apache.flink.streaming.api.function.sink.SinkFunction;
-import org.apache.flink.streaming.util.PerformanceCounter;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.function.sink.RichSinkFunction;
+import org.apache.flink.streaming.util.LatencyTester;
 
-public class PerformanceCounterSink<IN> implements SinkFunction<IN>  {
+public class WordCountLatencySink extends RichSinkFunction<Tuple3<String, Integer, Long>>  {
 	private static final long serialVersionUID = 1L;
 	
-	private PerformanceCounter pCounter;
 	private String argString;
 	private String csvPath;
 	
-	public PerformanceCounterSink(String[] args, String csvPath_) {
+	private LatencyTester latencyTester;
+	
+	private int intervalLength;
+	
+	public WordCountLatencySink(String[] args, String csvPath_, int intervalLength_){
 		csvPath = csvPath_;
 		argString = args[6];
 		for(int i = 7; i < args.length; i++){
 			argString += "_" + args[i];
 		}
+		intervalLength = intervalLength_;
 	}
-	
 	
 	@Override
-	public void invoke(IN tuple) {
-		pCounter.count();
+	public void open(Configuration parameters) throws Exception {
+		String fileName = getFileName();
+		latencyTester = new LatencyTester(intervalLength, fileName);
 	}
 
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		ois.defaultReadObject();
-		
+	private String getFileName() {
 		Random rnd = new Random();
 		String fileName;
-		File csvFile;
+		File histFile;
 		do {
-			fileName = csvPath + "sink-" + argString + 
+			fileName = csvPath + "histogramPart-" + argString + 
 					"-" + String.valueOf(rnd.nextInt(10000000)) + ".csv";
-			csvFile = new File(fileName);
-		} while(csvFile.exists());
-		
-		pCounter = new PerformanceCounter("SplitterEmitCounter", 1000, 1000, 30000, fileName);
+			histFile = new File(fileName);
+		} while(histFile.exists());
+		return fileName;
+	}
+	
+	@Override
+	public void invoke(Tuple3<String, Integer, Long> inValue) {
+		long arrivalTime = System.currentTimeMillis();
+		latencyTester.add(inValue.f2, arrivalTime);
 	}
 }

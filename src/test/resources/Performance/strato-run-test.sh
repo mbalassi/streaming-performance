@@ -27,7 +27,7 @@ if [ -d "${toDir}" ] ; then
     resourceFileName="${resourceFile##*/}"
     resourcePathOnCluster=$stratoDir/resources/$resourceFileName
 
-	ssh -n $stratoUser@$stratoMaster "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster $resourcePathOnCluster ./${stratoDir}/log/counter/ ./${stratoDir}/lib/${jarFile} ${paramsWithSpace}"
+	ssh -n $stratoUser@$stratoMaster "timeout ${length} ./$stratoDir/bin/flink run -v -j ./$stratoDir/lib/${jarFile} -c $classPath -a cluster $resourcePathOnCluster ./${stratoDir}/log/counter/ ./${stratoDir}/lib/${jarFile} ${stratoMaster} ${stratoRcpPort} ${paramsWithSpace}"
     ssh -n $stratoUser@$stratoMaster "./$stratoDir/bin/stop-cluster.sh; sleep 2; $stratoDir/bin/start-cluster.sh"
 
 	echo "job finished"

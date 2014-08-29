@@ -17,17 +17,17 @@
  *
  */
 
-package org.apache.flink.streaming.performance.latency;
+package org.apache.flink.streaming.performance.latency.latencytest;
 
 import java.io.File;
 import java.util.Random;
 
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.function.sink.RichSinkFunction;
 import org.apache.flink.streaming.util.LatencyTester;
 
-public class WordCountLatencySink extends RichSinkFunction<Tuple3<String, Integer, Long>>  {
+public class LatencyTestSink extends RichSinkFunction<Tuple1<Long>>  {
 	private static final long serialVersionUID = 1L;
 	
 	private String argString;
@@ -37,10 +37,10 @@ public class WordCountLatencySink extends RichSinkFunction<Tuple3<String, Intege
 	
 	private int intervalLength;
 	
-	public WordCountLatencySink(String[] args, String csvPath_, int intervalLength_){
+	public LatencyTestSink(String[] args, String csvPath_, int intervalLength_){
 		csvPath = csvPath_;
-		argString = args[4];
-		for(int i = 5; i < args.length; i++){
+		argString = args[6];
+		for(int i = 7; i < args.length; i++){
 			argString += "_" + args[i];
 		}
 		intervalLength = intervalLength_;
@@ -65,8 +65,8 @@ public class WordCountLatencySink extends RichSinkFunction<Tuple3<String, Intege
 	}
 	
 	@Override
-	public void invoke(Tuple3<String, Integer, Long> inValue) {
-		long arrivalTime = System.nanoTime();
-		latencyTester.add(inValue.f2, arrivalTime);
+	public void invoke(Tuple1<Long> inValue) {
+		long arrivalTime = System.currentTimeMillis();
+		latencyTester.add(inValue.f0, arrivalTime);
 	}
 }

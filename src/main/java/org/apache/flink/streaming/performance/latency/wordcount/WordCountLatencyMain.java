@@ -17,19 +17,20 @@
  *
  */
 
-package org.apache.flink.streaming.performance.general;
+package org.apache.flink.streaming.performance.latency.wordcount;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountPerformanceOneMilliMain {
+public class WordCountLatencyMain {
+
 	public static void main(String[] args) {
 
-		if (args != null && args.length == 11) {
+		if (args != null && args.length == 13) {
 			try {
 				boolean runOnCluster = args[0].equals("cluster");
 				String sourcePath = args[1];
@@ -47,27 +48,29 @@ public class WordCountPerformanceOneMilliMain {
 				int splitterSize = Integer.valueOf(args[8]);
 				int counterSize = Integer.valueOf(args[9]);
 				int sinkSize = Integer.valueOf(args[10]);
+				int bufferTimeOut = Integer.valueOf(args[11]);
+				int intervalLength = Integer.valueOf(args[12]);
 		
 				StreamExecutionEnvironment env;
 				if (runOnCluster) {
 					env = StreamExecutionEnvironment.createRemoteEnvironment(
-							host, port, clusterSize, 
+							host, port, clusterSize, // TODO ezt kiemelni parameternek
 							jarPath);
 				} else {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 				
-				int bufferTimeout = 1;
+				if(bufferTimeOut != 0) {
+					env.setBufferTimeout(bufferTimeOut);
+				}
 				
 				@SuppressWarnings("unused")
-				DataStream<Tuple2<String, Integer>> dataStream = env
-						.readTextStream(sourcePath, sourceSize)
-							.setBufferTimeout(bufferTimeout)
-						.flatMap(new WordCountPerformanceSplitter())
-							.setParallelism(splitterSize).setBufferTimeout(bufferTimeout).partitionBy(0)
-						.map(new WordCountPerformanceCounter())
-							.setParallelism(counterSize).setBufferTimeout(bufferTimeout)
-						.addSink(new WordCountPerformanceSink(args, csvPath))
+				DataStream<Tuple3<String, Integer, Long>> dataStream = env
+						.addSource(new WordCountLatencySource(sourcePath), sourceSize).shuffle()
+						.flatMap(new WordCountLatencySplitter()).setParallelism(splitterSize)
+							.partitionBy(0)
+						.map(new WordCountLatencyCounter()).setParallelism(counterSize).shuffle()
+						.addSink(new WordCountLatencySink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				
 				env.setExecutionParallelism(clusterSize);
@@ -78,12 +81,16 @@ public class WordCountPerformanceOneMilliMain {
 				printUsage();
 			}
 		} else {
+			System.out.println(Integer.MAX_VALUE);
 			printUsage();
 		}
 	}
 
 	private static void printUsage() {
-		System.out
-				.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path> <number of workers> <spout parallelism> <splitter parallelism> <counter parallelism> <sink parallelism>");
+		// local /home/tofi/git/streaming-performance/src/test/resources/testdata/hamlet.txt /home/tofi/git/streaming-performance/src/test/resources/testdata/ none 1 1 1 1 1 0 10
+		System.out.println("USAGE:\n run <local/cluster> <source path> <csv path> <jar path>"
+				+ " <number of workers> <spout parallelism> <splitter parallelism>"
+				+ " <counter parallelism> <sink parallelism> <buffertimeout in milliseconds>"
+				+ " <interval length for the histogram>");
 	}
 }

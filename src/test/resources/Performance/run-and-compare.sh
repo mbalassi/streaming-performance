@@ -106,6 +106,7 @@ if [ "$#" -gt 9 ]; then
     comparedTests="${comparedTests:1:${#comparedTests}-1}"
     compareDirName=result
     compareDir=$saveDir/comparisons/$compareDirName
+    mkdir -p $compareDir
     echo $comparedTests > $compareDir/comparedTests.txt
     if [ $compareMode = "throughput" ]; then
         ${thisDir}/compare-throughput-results.sh $compareDir ${compareArgsArray[@]}

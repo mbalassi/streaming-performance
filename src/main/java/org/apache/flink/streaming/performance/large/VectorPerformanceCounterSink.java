@@ -8,15 +8,15 @@ import java.util.Random;
 import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
 
-public class PerformanceCounterSink implements SinkFunction<UserVector> {
+public class VectorPerformanceCounterSink implements SinkFunction<UserVector> {
 	private static final long serialVersionUID = 1L;
 		
 	private PerformanceCounter pCounter;
 	private String argString;
 	private String csvPath;
 	
-	public PerformanceCounterSink(String[] args, String csvPath_){
-		csvPath = csvPath_;
+	public VectorPerformanceCounterSink(String[] args, String csvPath){
+		this.csvPath = csvPath;
 		argString = args[6];
 		for(int i = 7; i < args.length; i++){
 			argString += "_" + args[i];

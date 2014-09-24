@@ -68,7 +68,11 @@ public class WordCountPerformanceForwardMain {
 							.setParallelism(sinkSize);
 				
 				env.setExecutionParallelism(clusterSize);
-				env.execute();
+				try {
+					env.execute();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			} catch (NumberFormatException e) {
 				printUsage();
 			} catch (FileNotFoundException e) {

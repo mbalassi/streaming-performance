@@ -76,7 +76,12 @@ public class PageRankIterativeMain {
 						new PageRankSink(logPath, 30 * 1000)).setParallelism(1);
 				
 				env.setExecutionParallelism(clusterSize);
-				env.execute();
+				try {
+					env.execute();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (NumberFormatException e) {
 				printUsage();
 			} catch (FileNotFoundException e) {

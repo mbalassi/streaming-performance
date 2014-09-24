@@ -21,7 +21,7 @@ package org.apache.flink.streaming.performance.iterative;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.flink.api.java.functions.RichFlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.util.DirectedGraph;

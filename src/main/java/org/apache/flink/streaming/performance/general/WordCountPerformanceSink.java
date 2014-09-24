@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Random;
 
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.function.sink.SinkFunction;
 import org.apache.flink.streaming.util.PerformanceCounter;
-import org.apache.flink.api.java.tuple.Tuple2;
 
 public class WordCountPerformanceSink implements SinkFunction<Tuple2<String, Integer>>  {
 	private static final long serialVersionUID = 1L;

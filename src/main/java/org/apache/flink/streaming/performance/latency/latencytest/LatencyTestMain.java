@@ -69,7 +69,12 @@ public class LatencyTestMain {
 							.setParallelism(sinkSize);
 				
 				env.setExecutionParallelism(clusterSize);
-				env.execute();
+				try {
+					env.execute();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (NumberFormatException e) {
 				printUsage();
 			} catch (FileNotFoundException e) {

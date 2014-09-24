@@ -21,13 +21,22 @@
             <id>Akka repository</id>
             <url>http://repo.akka.io/releases</url>
         </repository>
-		<repository>
+		<!--<repository>
 			<id>snapshots-repo</id>
 			<url>https://dms.sztaki.hu/maven-public</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>true</enabled></snapshots>
+		</repository>-->
+		<repository>
+			<id>apache.snapshots</id>
+			<name>Apache Development Snapshot Repository</name>
+			<url>https://repository.apache.org/content/repositories/snapshots/</url>
+			<releases><enabled>false</enabled></releases>
+			<snapshots><enabled>true</enabled></snapshots>
 		</repository>
 	</repositories>
+
+
 
 	<dependencies>
         <dependency>
@@ -48,7 +57,7 @@
    		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-core</artifactId>
-			<version>0.6-incubating-SNAPSHOT</version>
+			<version>0.7-incubating-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>

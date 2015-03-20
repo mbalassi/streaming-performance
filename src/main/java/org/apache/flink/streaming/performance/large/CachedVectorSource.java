@@ -18,7 +18,7 @@ public class CachedVectorSource implements SourceFunction<UserVector> {
 	}
 
 	@Override
-	public void invoke(Collector<UserVector> out) throws Exception {
+	public void run(Collector<UserVector> out) throws Exception {
 		cache = VectorParser.getCollection(filePath);
 
 		UserVector userVector = new UserVector();
@@ -31,6 +31,11 @@ public class CachedVectorSource implements SourceFunction<UserVector> {
 				out.collect(userVector);
 			}
 		}
+	}
+
+	@Override
+	public void cancel() {
+
 	}
 
 }

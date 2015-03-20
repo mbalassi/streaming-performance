@@ -64,11 +64,10 @@ public class LatencyTestMain {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple1<Long>> dataStream = env
-						.addSource(new LatencyTestSource(), sourceSize).shuffle()
+						.addSource(new LatencyTestSource()).setParallelism(sourceSize).shuffle()
 						.addSink(new LatencyTestSink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				
-				env.setExecutionParallelism(clusterSize);
 				try {
 					env.execute();
 				} catch (Exception e) {

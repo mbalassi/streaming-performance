@@ -31,11 +31,16 @@ public class LatencyTestSource extends RichSourceFunction<Tuple1<Long>>{
 	private Tuple1<Long> outValue = new Tuple1<Long>();
 	
 	@Override
-	public void invoke(Collector<Tuple1<Long>> collector) throws IOException {
+	public void run(Collector<Tuple1<Long>> collector) throws IOException {
 		System.out.println(System.currentTimeMillis());
 		while (true) {
 			outValue.f0 = System.currentTimeMillis();
 			collector.collect(outValue);
 		}
+	}
+
+	@Override
+	public void cancel() {
+
 	}
 }

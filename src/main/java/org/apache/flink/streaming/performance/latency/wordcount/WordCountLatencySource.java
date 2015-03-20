@@ -38,7 +38,7 @@ public class WordCountLatencySource extends RichSourceFunction<Tuple2<String, Lo
 	}
 
 	@Override
-	public void invoke(Collector<Tuple2<String, Long>> collector) throws IOException {
+	public void run(Collector<Tuple2<String, Long>> collector) throws IOException {
 		while (true) {
 			BufferedReader br = new BufferedReader(new FileReader(path));
 			outValue.f0 = br.readLine();
@@ -51,5 +51,10 @@ public class WordCountLatencySource extends RichSourceFunction<Tuple2<String, Lo
 			}
 			br.close();
 		}
+	}
+
+	@Override
+	public void cancel() {
+
 	}
 }

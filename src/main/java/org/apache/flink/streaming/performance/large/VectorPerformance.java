@@ -35,7 +35,8 @@ public class VectorPerformance {
 					env = StreamExecutionEnvironment.createLocalEnvironment(clusterSize);
 				}
 
-				env.addSource(new CachedVectorSource(sourcePath)).partitionBy(0).setParallelism(sourceSize)
+				env.addSource(new CachedVectorSource(sourcePath)).setParallelism(sourceSize)
+						.groupBy(0)
 						.flatMap(new VectorAdderFlatMap()).shuffle().setParallelism(addSize)
 						.flatMap(new VectorMapperFlatMap()).shuffle().setParallelism(mapSize)
 						.addSink(new VectorPerformanceCounterSink(args, csvPath)).setParallelism(sinkSize);

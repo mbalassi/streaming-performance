@@ -53,9 +53,14 @@ public class EdgeSource extends RichSourceFunction<Tuple3<Integer, Integer, Inte
 	}
 	
 	@Override
-	public void invoke(Collector<Tuple3<Integer, Integer, Integer>> collector) throws IOException {
+	public void run(Collector<Tuple3<Integer, Integer, Integer>> collector) throws IOException {
 		buildGraphFromFile(collector);
 		//doRandomAddsRemoves(collector);
+	}
+
+	@Override
+	public void cancel() {
+
 	}
 
 	private void doRandomAddsRemoves(Collector<Tuple3<Integer, Integer, Integer>> collector) {

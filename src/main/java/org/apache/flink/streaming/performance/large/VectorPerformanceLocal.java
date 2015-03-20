@@ -7,7 +7,7 @@ public class VectorPerformanceLocal {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(1);
 
 		env.addSource(new CachedVectorSource("/home/hermann/performance/vector-small.txt"))
-				.partitionBy(0)
+				.groupBy(0)
 				.flatMap(new VectorAdderFlatMap())
 				.flatMap(new VectorMapperFlatMap())
 				.print();

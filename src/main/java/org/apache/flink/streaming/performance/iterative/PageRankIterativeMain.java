@@ -60,7 +60,7 @@ public class PageRankIterativeMain {
 				
 				IterativeDataStream<Tuple3<Integer, Integer, Integer>> iterateBegin = env
 						.addSource(new EdgeSource(edgeSourcePath, crawlerSize, edgeAddRemoveSleep))
-							.setParallelism(1).partitionBy(0).iterate();
+							.setParallelism(1).groupBy(0).iterate();
 
 				SingleOutputStreamOperator<Tuple3<Integer, Integer, Integer>, ?> iterateEnd = iterateBegin
 						.flatMap(new RandomCrawler(1000000, 10000)).setParallelism(crawlerSize).distribute();
@@ -75,7 +75,6 @@ public class PageRankIterativeMain {
 						//	private static final long serialVersionUID = 1L;}).setParallelism(1);
 						new PageRankSink(logPath, 30 * 1000)).setParallelism(1);
 				
-				env.setExecutionParallelism(clusterSize);
 				try {
 					env.execute();
 				} catch (Exception e) {

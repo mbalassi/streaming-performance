@@ -60,14 +60,13 @@ public class WordCountPerformanceForwardMain {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple2<String, Integer>> dataStream = env
-						.readTextStream(sourcePath, sourceSize).forward()
+						.readTextFile(sourcePath).setParallelism(sourceSize).forward()
 						.flatMap(new WordCountPerformanceSplitter()).setParallelism(splitterSize)
-							.partitionBy(0)
+							.groupBy(0)
 						.map(new WordCountPerformanceCounter()).setParallelism(counterSize).forward()
 						.addSink(new WordCountPerformanceSink(args, csvPath))
 							.setParallelism(sinkSize);
 				
-				env.setExecutionParallelism(clusterSize);
 				try {
 					env.execute();
 				} catch (Exception e) {

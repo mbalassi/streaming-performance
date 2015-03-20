@@ -69,4 +69,9 @@ public class LatencyTestSink extends RichSinkFunction<Tuple1<Long>>  {
 		long arrivalTime = System.currentTimeMillis();
 		latencyTester.add(inValue.f0, arrivalTime);
 	}
+
+	@Override
+	public void cancel() {
+
+	}
 }

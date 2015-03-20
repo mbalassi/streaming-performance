@@ -66,14 +66,14 @@ public class WordCountLatencyMain {
 				
 				@SuppressWarnings("unused")
 				DataStream<Tuple3<String, Integer, Long>> dataStream = env
-						.addSource(new WordCountLatencySource(sourcePath), sourceSize).shuffle()
+						.addSource(new WordCountLatencySource(sourcePath)).setParallelism(sourceSize)
+						.shuffle()
 						.flatMap(new WordCountLatencySplitter()).setParallelism(splitterSize)
-							.partitionBy(0)
+						.groupBy(0)
 						.map(new WordCountLatencyCounter()).setParallelism(counterSize).shuffle()
 						.addSink(new WordCountLatencySink(args, csvPath, intervalLength))
 							.setParallelism(sinkSize);
 				
-				env.setExecutionParallelism(clusterSize);
 				try {
 					env.execute();
 				} catch (Exception e) {

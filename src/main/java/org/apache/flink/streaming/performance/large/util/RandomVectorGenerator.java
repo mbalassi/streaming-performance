@@ -107,6 +107,6 @@ public class RandomVectorGenerator {
 
 	public DataStream<Tuple2<Integer, Double[]>> getVectors(StreamExecutionEnvironment env,
 			String sourcePath) {
-		return env.readTextStream(sourcePath).map(new VectorMapper());
+		return env.readTextFile(sourcePath).map(new VectorMapper());
 	}
 }

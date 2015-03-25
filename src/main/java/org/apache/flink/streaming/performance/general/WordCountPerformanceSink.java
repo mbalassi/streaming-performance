@@ -49,11 +49,6 @@ public class WordCountPerformanceSink implements SinkFunction<Tuple2<String, Int
 		pCounter.count();
 	}
 
-	@Override
-	public void cancel() {
-
-	}
-
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
 		

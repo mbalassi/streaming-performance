@@ -63,11 +63,6 @@ public class PageRankSink extends RichSinkFunction<Tuple3<Integer, Integer, Inte
 		writeToLogIfNeeded();
 	}
 
-	@Override
-	public void cancel() {
-
-	}
-
 	private void writeToLogIfNeeded() {
 		long now = System.currentTimeMillis();
 		if(lastWrite + writeInterval < now) {

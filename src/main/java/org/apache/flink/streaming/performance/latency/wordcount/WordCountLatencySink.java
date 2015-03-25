@@ -70,8 +70,4 @@ public class WordCountLatencySink extends RichSinkFunction<Tuple3<String, Intege
 		latencyTester.add(inValue.f2, arrivalTime);
 	}
 
-	@Override
-	public void cancel() {
-
-	}
 }

@@ -29,11 +29,6 @@ public class VectorPerformanceCounterSink implements SinkFunction<UserVector> {
 		pCounter.count();
 	}
 
-	@Override
-	public void cancel() {
-
-	}
-
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
 		

@@ -19,68 +19,45 @@
 
 package org.apache.flink.streaming.performance.map;
 
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.function.sink.RichSinkFunction;
-import org.apache.flink.streaming.api.function.source.ParallelSourceFunction;
-import org.apache.flink.streaming.util.PerformanceCounter;
-import org.apache.flink.util.Collector;
 
 public class MapJob {
 
     private static int sourceDop;
     private static int mapDop;
     private static int sinkDop;
+    private static long bufferTimout;
+    private static boolean chainingEnabled;
     private static String counterPath;
+    private static String argString;
 
     public static void main(String[] args) {
 
-        if (args.length != 4){
-            System.out.println("USAGE: MapJob <source dop> <map dop> <sink dop> <counter path>");
+        if (args.length != 6){
+            System.out.println("USAGE: MapJob <source dop> <map dop> <sink dop> <buffer timeout> <chaining> <counter path>");
             return;
         } else {
             sourceDop = Integer.parseInt(args[0]);
             mapDop = Integer.parseInt(args[1]);
             sinkDop = Integer.parseInt(args[2]);
-            counterPath = args[3];
+            bufferTimout = Long.parseLong(args[3]);
+            chainingEnabled = args[4].equals("true");
+            counterPath = args[5];
+
+            argString = args[0];
+            for (int i = 1; i < 4; i++) {
+                argString += "_" + args[i];
+            }
         }
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.getStreamGraph().setChaining(chainingEnabled);
+        env.setBufferTimeout(bufferTimout);
 
-        DataStream<Integer> dataStream = env.addSource(new ParallelSourceFunction<Integer>() {
-            @Override
-            public void run(Collector<Integer> collector) throws Exception {
-                while (true) {
-                    collector.collect(0);
-                }
-            }
-
-            @Override
-            public void cancel() {
-            }
-        }).setParallelism(sourceDop)
-        .map(new MapFunction<Integer, Integer>() {
-            @Override
-            public Integer map(Integer val) throws Exception {
-                return val;
-            }
-        }).setParallelism(mapDop)
-        .addSink(new RichSinkFunction<Integer>() {
-
-            private transient PerformanceCounter pCounter;
-
-            public void open(Configuration parameters) throws Exception {
-                pCounter = new PerformanceCounter("pc", 1000, 1000, 30000,
-                        counterPath + getRuntimeContext().getIndexOfThisSubtask() + ".csv");
-            }
-
-            @Override
-            public void invoke(Integer aInteger) throws Exception {
-                pCounter.count();
-            }
-        }).setParallelism(sinkDop);
+        DataStream<Integer> dataStream = env.addSource(new GenerateSource()).setParallelism(sourceDop)
+        .map(new IdentityMap()).setParallelism(mapDop)
+        .addSink(new PerformanceSink(counterPath, argString)).setParallelism(sinkDop);
 
         try {
             env.execute("Streaming MapJob");

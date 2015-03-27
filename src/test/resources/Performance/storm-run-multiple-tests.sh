@@ -5,7 +5,7 @@ saveDir=${thisDir}/../testdata
 javaDir="$thisDir"/../../../../target/
 stormDir='storm-dist'
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
-classPath=org.apache.storm.streaming.performance.general.StormWordCountPerformanceMain
+classPath=org.apache.storm.streaming.performance.legacy.general.StormWordCountPerformanceMain
 resourceFile=/home/storm/${stormDir}/resources/hamlet.txt
 #resourceFile=/home/storm/${stormDir}/resources/edgeList
 

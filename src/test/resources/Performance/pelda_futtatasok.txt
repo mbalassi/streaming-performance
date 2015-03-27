@@ -2,7 +2,7 @@ Fõscript (run-and-compare.sh):
 
 streaming-performance/src/test/resources/Performance mappából:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf latency -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_2_3_0_10:140:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf latency -f org.apache.flink.streaming.performance.legacy.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.legacy.latency.latencytest.LatencyTestMain:3_2_3_0_10:140:../testdata/hamlet.txt
 
 ========
 
@@ -22,8 +22,8 @@ Részletesebben a script argumentumai:
 7. ../testdata/autoperf-hadoop --- a mappa amibe menteni fogja az eredményeket
 8. latency --- melyik grafikon készítõt használja, jelenleg latency és throughput-ot ismer
 9. -f --- jelezzük, hogy flink futtatás következik
-10. org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt --- ez egy futtatásnak a beállításai, szétszedve darabokra:
-10.1. org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain --- az osztály elérési útvonala a jar file-ban amit futtatni akarunk
+10. org.apache.flink.streaming.performance.legacy.latency.latencytest.LatencyTestMain:3_3_3_0_10:140:../testdata/hamlet.txt --- ez egy futtatásnak a beállításai, szétszedve darabokra:
+10.1. org.apache.flink.streaming.performance.legacy.latency.latencytest.LatencyTestMain --- az osztály elérési útvonala a jar file-ban amit futtatni akarunk
 10.2. 3_3_3_0_10 --- a program argumentumai alulvonással elválasztva, errõl késõbb részletesebben lesz leírás
 10.3. 140 --- futásidõ másodpercekben
 10.4. ../testdata/hamlet.txt --- a resource file amit használni akarunk (lokális elérés, ezt feltölti a script a disztribúció/resources mappába)
@@ -96,7 +96,7 @@ A spark mûködése nagyban eltér az elõzõ kettõtõl, nagyrészt azért, mer
 
 Példák még futtatásokra:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_10_20_20_10:80:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.general.StormWordCountPerformanceMain:40_2_7_7_5:80:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.general.SparkWordCountPerformanceMain:40_2_1_1_2_5:80:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.legacy.general.WordCountPerformanceMain:40_10_20_20_10:80:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.legacy.general.StormWordCountPerformanceMain:40_2_7_7_5:80:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.general.SparkWordCountPerformanceMain:40_2_1_1_2_5:80:../testdata/hamlet.txt
 
 ======
 
@@ -104,31 +104,31 @@ Az elõzõ flink, storm és sparkon is futtat egy hasonló throughput tesztet, v
 
 ======
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.general.WordCountPerformanceMain:40_3_20_20_10:80:../testdata/hamlet.txt -d ../testdata/autoperf/results/StormWordCountPerformanceMain/40_2_7_7_5 -d ../testdata/autoperf/results/SparkWordCountPerformanceMain/40_2_1_1_2_5
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf throughput -f org.apache.flink.streaming.performance.legacy.general.WordCountPerformanceMain:40_3_20_20_10:80:../testdata/hamlet.txt -d ../testdata/autoperf/results/StormWordCountPerformanceMain/40_2_7_7_5 -d ../testdata/autoperf/results/SparkWordCountPerformanceMain/40_2_1_1_2_5
 
 ======
 
 Egy latency test mind3-on:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf latency -f org.apache.flink.streaming.performance.latency.wordcount.WordCountLatencyMain:40_3_20_20_10:110:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.latency.StormWordCountLatencyMain:40_2_7_7_5:110:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.latency.SparkWordCountLatencyMain:40_2_1_1_2_5:110:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_dell ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf latency -f org.apache.flink.streaming.performance.legacy.latency.wordcount.WordCountLatencyMain:40_3_20_20_10:110:../testdata/hamlet.txt -s org.apache.storm.streaming.performance.legacy.latency.StormWordCountLatencyMain:40_2_7_7_5:110:../testdata/hamlet.txt -p org.apache.spark.streaming.performance.latency.SparkWordCountLatencyMain:40_2_1_1_2_5:110:../testdata/hamlet.txt
 
 ======
 
 Latency wordcount csak flink-re:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.wordcount.WordCountLatencyMain:4_3_4_4_4_0_10:140:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.legacy.latency.wordcount.WordCountLatencyMain:4_3_4_4_4_0_10:140:../testdata/hamlet.txt
 
 ======
 
 Flink latency buffer timeout osszehasonlitas:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_10_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_100_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_1_10:140:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.legacy.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_10_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.legacy.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_100_10:140:../testdata/hamlet.txt -f org.apache.flink.streaming.performance.legacy.latency.wordcount.WordCountLatencyMain:4_2_2_4_4_1_10:140:../testdata/hamlet.txt
 
 ======
 
 Teszt arra, hogy szinkronban vannak-e a hadoopok, ha nincs negativ (vagy csak -10,0-nal van esetleg keves) akkor szinkronban:
 
-./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.latency.latencytest.LatencyTestMain:4_3_4_0_10:140:../testdata/hamlet.txt
+./run-and-compare.sh flink-0.6-incubating-SNAPSHOT-streaming-new storm-dist spark-1.0.2-bin-hadoop2 hadoop-2.2.0 config_hadoop ../../../../target/streaming-performance-0.1-SNAPSHOT.jar ../testdata/autoperf-hadoop latency -f org.apache.flink.streaming.performance.legacy.latency.latencytest.LatencyTestMain:4_3_4_0_10:140:../testdata/hamlet.txt
 
 
 ############################################

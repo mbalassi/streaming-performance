@@ -5,8 +5,8 @@ saveDir=/home/tofi/git/streaming-performance/src/test/resources/testdata
 javaDir="$thisDir"/../../../../target/
 stratoDir='flink-0.6-incubating-SNAPSHOT-streaming-new'
 jarFile='streaming-performance-0.1-SNAPSHOT.jar'
-classPath='org.apache.flink.streaming.performance.latency.WordCountLatencyMain'
-#classPath='org.apache.flink.streaming.performance.general.WordCountPerformanceMain'
+classPath='org.apache.flink.streaming.performance.legacy.latency.WordCountLatencyMain'
+#classPath='org.apache.flink.streaming.performance.legacy.general.WordCountPerformanceMain'
 resourceFile=/home/strato/${stratoDir}/resources/hamlet.txt
 #resourceFile=/home/strato/${stratoDir}/resources/edgeList
 

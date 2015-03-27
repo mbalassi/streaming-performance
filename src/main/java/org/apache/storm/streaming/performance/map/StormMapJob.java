@@ -22,19 +22,7 @@ package org.apache.storm.streaming.performance.map;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
-import backtype.storm.spout.SpoutOutputCollector;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.topology.base.BaseRichSpout;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-import org.apache.flink.streaming.util.PerformanceCounter;
-
-import java.util.Map;
 
 public class StormMapJob {
 
@@ -58,6 +46,7 @@ public class StormMapJob {
             sinkDop = Integer.parseInt(args[3]);
             workersNum = Integer.parseInt(args[4]);
             counterPath = args[5];
+
             argString = args[1];
             for (int i = 1; i < 4; i++) {
                 argString += "_" + args[i];
@@ -68,7 +57,7 @@ public class StormMapJob {
         builder.setSpout("spout", new GenerateSpout(), sourceDop);
         builder.setBolt("map", new MapBolt(), mapDop)
                 .localOrShuffleGrouping("spout"); //this is the closest grouping to our forward
-        builder.setBolt("sink", new SinkBolt(), sinkDop)
+        builder.setBolt("sink", new SinkBolt(counterPath, argString), sinkDop)
                 .localOrShuffleGrouping("map");
 
         Config conf = new Config();
@@ -77,7 +66,7 @@ public class StormMapJob {
         conf.setNumWorkers(workersNum);
 
         if (runOnCluster) {
-            StormSubmitter.submitTopology("Storm Map", conf, builder.createTopology());
+            StormSubmitter.submitTopology("StormMap", conf, builder.createTopology());
         } else {
             // running locally for 70 seconds
 
@@ -87,69 +76,6 @@ public class StormMapJob {
             Thread.sleep(70000);
 
             cluster.shutdown();
-        }
-    }
-
-    public static class GenerateSpout extends BaseRichSpout {
-
-        private transient SpoutOutputCollector collector;
-        private Values out = new Values(0);
-
-        @Override
-        public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("int"));
-        }
-
-        @Override
-        public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-            collector = spoutOutputCollector;
-        }
-
-        @Override
-        public void nextTuple() {
-            collector.emit(out);
-        }
-    }
-
-    public static class MapBolt extends BaseRichBolt {
-
-        private transient OutputCollector collector;
-        private Values out = new Values(0);
-
-        @Override
-        public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("int"));
-        }
-
-        @Override
-        public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-            collector = outputCollector;
-        }
-
-        @Override
-        public void execute(Tuple tuple) {
-            collector.emit(out);
-        }
-    }
-
-    public static class SinkBolt extends BaseRichBolt {
-
-        private transient PerformanceCounter pCounter;
-
-        @Override
-        public void declareOutputFields(OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("int"));
-        }
-
-        @Override
-        public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-            pCounter = new PerformanceCounter("pc", 1000, 1000, 30000,
-                    counterPath + "storm-" + argString + "-" + topologyContext.getThisTaskId() + ".csv");
-        }
-
-        @Override
-        public void execute(Tuple tuple) {
-            pCounter.count();
         }
     }
 }

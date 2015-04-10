@@ -22,53 +22,43 @@ package org.apache.storm.streaming.performance.map;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
+import backtype.storm.spout.SpoutOutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.topology.base.BaseRichSpout;
+import backtype.storm.tuple.Fields;
+import org.apache.flink.streaming.util.PerformanceCounter;
 
-public class StormMapJob {
+import java.util.Map;
+
+public class StormSpoutJob {
 
     private static boolean runOnCluster;
     private static int sourceDop;
-    private static int mapDop;
-    private static int sinkDop;
     private static int workersNum;
-    private static boolean isShuffled;
     private static String counterPath;
     private static String argString;
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 7){
-            System.out.println("USAGE: MapJob <executor> <source dop> <map dop> <sink dop> <workers num> <shuffle> <counter path>");
+        if (args.length != 4){
+            System.out.println("USAGE: MapJob <executor> <source dop> <workers num> <counter path>");
             return;
         } else {
             runOnCluster = args[0].equals("cluster");
             sourceDop = Integer.parseInt(args[1]);
-            mapDop = Integer.parseInt(args[2]);
-            sinkDop = Integer.parseInt(args[3]);
-            workersNum = Integer.parseInt(args[4]);
-            isShuffled = args[5].equals("true");
-            counterPath = args[6];
+            workersNum = Integer.parseInt(args[2]);
+            counterPath = args[3];
 
             argString = args[1];
-            for (int i = 1; i < 5; i++) {
+            for (int i = 1; i < 2; i++) {
                 argString += "_" + args[i];
             }
         }
 
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("spout", new GenerateSpout(), sourceDop);
-
-        // if shuffle grouping is enabled shuffle after the spout
-        if (isShuffled) {
-            builder.setBolt("map", new MapBolt(), mapDop)
-                    .shuffleGrouping("spout");
-        } else {
-            builder.setBolt("map", new MapBolt(), mapDop)
-                    .localOrShuffleGrouping("spout"); //this is the closest grouping to our forward
-        }
-
-        builder.setBolt("sink", new SinkBolt(counterPath, argString), sinkDop)
-                .localOrShuffleGrouping("map");
+        builder.setSpout("spout", new SpoutSink(), sourceDop);
 
         Config conf = new Config();
         conf.setNumAckers(0);
@@ -76,7 +66,7 @@ public class StormMapJob {
         conf.setNumWorkers(workersNum);
 
         if (runOnCluster) {
-            StormSubmitter.submitTopology("StormMap", conf, builder.createTopology());
+            StormSubmitter.submitTopology("StormSpout", conf, builder.createTopology());
         } else {
             // running locally for 70 seconds
 
@@ -86,6 +76,27 @@ public class StormMapJob {
             Thread.sleep(70000);
 
             cluster.shutdown();
+        }
+    }
+
+    public static class SpoutSink extends BaseRichSpout {
+
+        private transient PerformanceCounter pCounter;
+
+        @Override
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields("int"));
+        }
+
+        @Override
+        public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
+            pCounter = new PerformanceCounter("pc", 1000, 1000, 30000,
+                    counterPath + "storm-" + argString + "-" + topologyContext.getThisTaskId() + ".csv");
+        }
+
+        @Override
+        public void nextTuple() {
+            pCounter.count();
         }
     }
 }

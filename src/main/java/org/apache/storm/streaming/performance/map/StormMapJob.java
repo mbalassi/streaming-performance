@@ -50,7 +50,7 @@ public class StormMapJob {
             counterPath = args[6];
 
             argString = args[1];
-            for (int i = 1; i < 5; i++) {
+            for (int i = 1; i < 6; i++) {
                 argString += "_" + args[i];
             }
         }

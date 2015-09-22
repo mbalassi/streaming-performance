@@ -48,7 +48,7 @@ public class MapJob {
             counterPath = args[6];
 
             argString = args[0];
-            for (int i = 1; i < 5; i++) {
+            for (int i = 1; i < 6; i++) {
                 argString += "_" + args[i];
             }
         }
